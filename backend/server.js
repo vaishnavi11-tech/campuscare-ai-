@@ -1,16 +1,21 @@
-const express=require('express')
-const app=express()
-app.use(express.json())
-app.get('/',(req,res) =>{
-res.send('Server running')
-})
-app.get('/about', (req, res) => {
-  res.send('About Route')
-})
-app.post('/issue',(req,res)=>{
-    console.log(req.body)
-    res.send("Issue created")
-})
-app.listen(5000,()=>{
-    console.log("Server running on 5000")
-})
+const authRoutes = require("./routes/authRoutes");
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+
+dotenv.config();
+
+connectDB();
+
+const app = express();
+app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.get("/", (req, res) => {
+    res.send("API Running");
+});
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
