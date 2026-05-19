@@ -60,3 +60,64 @@ const complaints= await Complaint.find({
     }
 
 }
+exports.updateComplaintStatus = async(req,res)=>{
+
+    try{
+
+        const { status } = req.body;
+
+        const complaintId = req.params.id;
+
+        const updatedComplaint = await Complaint.findByIdAndUpdate(
+
+            complaintId,
+
+            {
+                status
+            },
+
+            {
+                new:true
+            }
+
+        );
+
+        return res.status(200).json({
+            success:true,
+            message:"Complaint status updated",
+            updatedComplaint
+        })
+
+    }catch(error){
+
+        return res.status(500).json({
+            success:false,
+            message:"Server error"
+        })
+
+    }
+
+}
+exports.deleteComplaint = async(req,res)=>{
+
+    try{
+
+        const complaintId = req.params.id;
+
+        await Complaint.findByIdAndDelete(complaintId);
+
+        return res.status(200).json({
+            success:true,
+            message:"Complaint deleted successfully"
+        })
+
+    }catch(error){
+
+        return res.status(500).json({
+            success:false,
+            message:"Server error"
+        })
+
+    }
+
+}
