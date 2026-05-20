@@ -3,7 +3,7 @@ const Student = require("../models/Student");
 const jwt = require("jsonwebtoken");
 const registerStudent = async (req, res) => {
     try {
-        const { name, email, password, department } = req.body;
+        const { name, email, password, department,role } = req.body;
         const studentExists = await Student.findOne({ email });
         if (studentExists) {
             return res.status(400).json({
@@ -16,7 +16,8 @@ const student = await Student.create({
     name,
     email,
     password: hashedPassword,
-    department
+    department,
+    role:role || "student"
 });
         res.status(201).json({
             message: "Student registered successfully",
@@ -45,7 +46,8 @@ const loginStudent = async (req, res) => {
         }
         const token = jwt.sign(
             {
-                id: student._id
+                id: student._id,
+                role:student.role
             },
             process.env.JWT_SECRET,
             {
@@ -56,11 +58,14 @@ const loginStudent = async (req, res) => {
             message: "Login successful",
             token
         });
-    } catch (error) {
-        res.status(500).json({
-            message: "Server Error"
-        });
     }
+    catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+        message: "Server Error"
+    });
+}
 };
 
 module.exports = { registerStudent, loginStudent };
