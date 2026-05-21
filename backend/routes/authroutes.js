@@ -7,4 +7,5 @@ const { auth } = require("../middleware/auth");
 router.post("/register", registerStudent);
 router.post("/login", loginStudent);
 router.get("/profile", auth, profile);
+
 module.exports = router;
