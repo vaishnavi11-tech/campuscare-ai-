@@ -27,7 +27,11 @@ const complaintSchema = new mongoose.Schema(
             type:mongoose.Schema.Types.ObjectId,
             ref:"Student",
             required:true
-        }
+        },
+        assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student"
+},
     },
     {
         timestamps:true

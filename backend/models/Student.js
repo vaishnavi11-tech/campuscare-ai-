@@ -23,7 +23,10 @@ const studentSchema= new mongoose.Schema({
         type: String,
         enum:["student","staff","admin"],
         default: "student"
-    }
+    },
+    category: {
+    type: String
+},
 });
 const Student = mongoose.model("Student", studentSchema);
 

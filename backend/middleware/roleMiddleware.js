@@ -9,5 +9,15 @@ const isAdmin = (req, res, next) => {
 
     next();
 };
+const isStaff=(req,res,next) => {
+    if(req.user.role!=="staff"){
+        return res.status(403).json({
+            sucess:false,
+            message:"Access Denied,Staff Only."
+        })
+    }
+    next();
+}
 
-module.exports = { isAdmin };
+module.exports = { isAdmin,isStaff };
+
