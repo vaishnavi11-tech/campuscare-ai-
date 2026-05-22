@@ -1,5 +1,5 @@
 const Complaint = require("../models/Complaint");
-
+const Student = require("../models/Student");
 exports.createComplaint = async (req, res) => {
 
     try {
@@ -45,14 +45,28 @@ exports.getMyComplaints = async (req, res) => {
 
     try {
 
-        const complaints = await Complaint.find({
-            student: req.user.id
-        }).populate("student", "name email");
+        
+const page = parseInt(req.query.page) || 1;
+const limit = parseInt(req.query.limit) || 5;
+const skip = (page - 1) * limit;
 
-        return res.status(200).json({
-            success: true,
-            complaints
-        });
+const complaints = await Complaint.find({ student: req.user.id })
+    .populate("student", "name email")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+const total = await Complaint.countDocuments({ student: req.user.id });
+
+return res.status(200).json({
+    success: true,
+    page,
+    limit,
+    total,
+    totalPages: Math.ceil(total / limit),
+    complaints
+});
+        
 
     } catch (error) {
 
@@ -183,13 +197,18 @@ if (req.query.search) {
 .sort({ createdAt: -1 })
 .skip(skip)
 .limit(limit);
-        return res.status(200).json({
+     const total = await Complaint.countDocuments(filter);
+
+return res.status(200).json({
     success: true,
     page,
     limit,
+    total,
+    totalPages: Math.ceil(total / limit),
     count: complaints.length,
     complaints
 });
+
     } catch (error) {
 
         console.log(error);
@@ -222,7 +241,7 @@ if (req.query.search) {
         }
 
         // Find staff
-        const staff = await User.findById(assignedTo);
+        const staff = await Student.findById(assignedTo);
 
         if (!staff) {
             return res.status(404).json({
@@ -279,20 +298,26 @@ if (req.query.search) {
 exports.getComplaintStats = async (req, res) => {
 
     try {
+const stats = await Complaint.aggregate([
+    {
+        $facet: {
+            total: [{ $count: "count" }],
+            pending: [{ $match: { status: "pending" } }, { $count: "count" }],
+            inProgress: [{ $match: { status: "in-progress" } }, { $count: "count" }],
+            resolved: [{ $match: { status: "resolved" } }, { $count: "count" }]
+        }
+    }
+]);
 
-        const total = await Complaint.countDocuments();
-
-        const pending = await Complaint.countDocuments({
-            status: "pending"
-        });
-
-        const inProgress = await Complaint.countDocuments({
-            status: "in-progress"
-        });
-
-        const resolved = await Complaint.countDocuments({
-            status: "resolved"
-        });
+return res.status(200).json({
+    success: true,
+    stats: {
+        total: stats[0].total[0]?.count || 0,
+        pending: stats[0].pending[0]?.count || 0,
+        inProgress: stats[0].inProgress[0]?.count || 0,
+        resolved: stats[0].resolved[0]?.count || 0
+    }
+});
 
         return res.status(200).json({
             success: true,
