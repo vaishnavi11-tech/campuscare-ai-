@@ -7,7 +7,7 @@ router.post("/create", auth, createComplaint);
 router.get("/my",auth,getMyComplaints);
 router.patch("/:id",auth,isStaff,updateComplaintStatus);
 router.delete("/delete/:id",auth,isAdmin,deleteComplaint);
-router.get("/all",auth,isAdmin,getAllComplaints);
+router.get("/all",getAllComplaints);
 router.get("/stats", auth, isAdmin, getComplaintStats);
 router.get("/my-stats", auth,  getMyStats);
 router.patch("/assign/:id",auth,isAdmin,assignComplaint);
