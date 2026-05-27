@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Dashboard() {
 
@@ -18,12 +18,23 @@ function Dashboard() {
         Dashboard
       </h1>
 
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Logout
-      </button>
+      <div className="flex gap-4">
+
+        <Link
+          to="/create-complaint"
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Create Complaint
+        </Link>
+
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded"
+        >
+          Logout
+        </button>
+
+      </div>
 
     </div>
   );
