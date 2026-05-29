@@ -6,6 +6,8 @@ import Dashboard from "./pages/Dashboard";
 import CreateComplaint from "./pages/CreateComplaint";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyComplaints from "./pages/MyComplaints";
+import AdminDashboard from "./pages/AdminDashboard";
+import AllComplaints from "./pages/AllComplaints";
 function App() {
 
   return (
@@ -20,6 +22,8 @@ function App() {
     </ProtectedRoute>
   }
 />
+<Route path="/complaints" element={<AllComplaints />} />
+<Route path="/admin" element={<AdminDashboard />} />
 
         <Route path="/" element={<Home />} />
 

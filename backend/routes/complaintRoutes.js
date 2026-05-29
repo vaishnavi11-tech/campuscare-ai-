@@ -5,6 +5,7 @@ const { auth } = require("../middleware/auth");
 const { isAdmin,isStaff } = require("../middleware/roleMiddleware");
 router.post("/create", auth, createComplaint);
 router.get("/my",auth,getMyComplaints);
+router.patch("/assign/:id",auth,isAdmin,assignComplaint);
 router.patch("/:id",auth,isStaff,updateComplaintStatus);
 router.delete("/delete/:id",auth,isAdmin,deleteComplaint);
 router.get("/all",getAllComplaints);

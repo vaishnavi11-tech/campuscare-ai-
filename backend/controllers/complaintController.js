@@ -193,7 +193,9 @@ if (req.query.search) {
     };
 }
        const complaints = await Complaint.find(filter)
+
 .populate("student", "name email")
+.populate("assignedTo", "name email")
 .sort({ createdAt: -1 })
 .skip(skip)
 .limit(limit);
@@ -251,7 +253,10 @@ return res.status(200).json({
         }
 
         // Check category match
-        if (complaint.category !== staff.category) {
+        if (
+    complaint.category.trim().toLowerCase() !==
+    staff.category.trim().toLowerCase()
+) {
             return res.status(400).json({
                 success: false,
                 message: "Staff category does not match complaint category"
