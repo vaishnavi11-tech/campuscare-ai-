@@ -1,41 +1,68 @@
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
+const { analyzeComplaint } = require("../services/aiService");
+
 exports.createComplaint = async (req, res) => {
+  try {
+    const { title, description } = req.body;
 
-    try {
-
-        const { title, description } = req.body;
-
-if (!title || !description) {
-            return res.status(400).json({
-                success: false,
-                message: "Please fill all details"
-            });
-        }
-
-       const complaint = await Complaint.create({
-    title,
-    description,
-    student: req.user.id
-});
-
-        return res.status(201).json({
-            success: true,
-            message: "Complaint created successfully",
-            complaint
-        });
-
-    } catch (error) {
-
-        console.log(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Server error"
-        });
-
+    if (!title || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all details",
+      });
     }
 
+    // Create complaint first
+    const complaint = await Complaint.create({
+      title,
+      description,
+      student: req.user.id,
+    });
+
+    try {
+      // Run AI Analysis
+      const result = await analyzeComplaint(
+        title,
+        description
+      );
+
+      const cleanedResult = result
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+      const parsedResult = JSON.parse(cleanedResult);
+console.log("PARSED AI RESULT:", parsedResult);
+      // Store AI Result
+     complaint.aiResult = {
+  category: parsedResult.category,
+  priority: parsedResult.priority.toLowerCase(),
+  suggestedResolution:
+    parsedResult.suggestedResolution,
+};
+complaint.category = parsedResult.category;
+      await complaint.save();
+
+    } catch (aiError) {
+      console.log("AI Analysis Error:", aiError);
+      // Complaint is still created even if AI fails
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: "Complaint created successfully",
+      complaint,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };
 
 exports.getMyComplaints = async (req, res) => {
@@ -378,6 +405,40 @@ exports.getMyStats = async (req, res) => {
     }
 
 };
+exports.getComplaintById = async (req, res) => {
+
+  try {
+
+    const complaint = await Complaint.findById(
+      req.params.id
+    )
+      .populate("student", "name email")
+      .populate("assignedTo", "name email");
+
+    if (!complaint) {
+      return res.status(404).json({
+        success: false,
+        message: "Complaint not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      complaint,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+
+  }
+
+};
 exports.getAssignedStats = async (req, res) => {
 
     try {
@@ -423,5 +484,32 @@ exports.getAssignedStats = async (req, res) => {
         });
 
     }
+
+};
+exports.getAssignedComplaints = async (req, res) => {
+
+  try {
+
+    const complaints = await Complaint.find({
+      assignedTo: req.user.id,
+    })
+      .populate("student", "name email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      complaints,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+
+  }
 
 };

@@ -1,10 +1,12 @@
-const Student = require("../models/User");
+const User = require("../models/User");
 
 const getAllStaff = async (req, res) => {
 
   try {
 
-    const staff = await Student.find({ role: "staff" });
+    const staff = await User.find({
+      role: "faculty",
+    });
 
     res.status(200).json({
       success: true,
@@ -17,7 +19,9 @@ const getAllStaff = async (req, res) => {
       success: false,
       message: error.message,
     });
+
   }
+
 };
 
 module.exports = {

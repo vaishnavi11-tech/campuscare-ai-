@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {getMyComplaints,createComplaint,updateComplaintStatus,deleteComplaint,getAllComplaints,assignComplaint,getComplaintStats,getMyStats,getAssignedStats}=require("../controllers/complaintController")
+const {getMyComplaints,createComplaint,getComplaintById, getAssignedComplaints,updateComplaintStatus,deleteComplaint,getAllComplaints,assignComplaint,getComplaintStats,getMyStats,getAssignedStats}=require("../controllers/complaintController")
 const { auth } = require("../middleware/auth");
 const {
     isAdmin,
@@ -15,7 +15,8 @@ router.delete("/delete/:id",auth,isAdmin,deleteComplaint);
 router.get("/all", auth, isAdmin, getAllComplaints);
 router.get("/stats", auth, isAdmin, getComplaintStats);
 router.get("/my-stats", auth,  getMyStats);
-
+router.get("/assigned", auth,isFaculty, getAssignedComplaints);
 router.get("/assigned-stats", auth, isFaculty, getAssignedStats);
+router.get( "/:id", auth,getComplaintById);
 module.exports = router;
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
 import StatusBadge from "../components/StatusBadge";
+import { Link } from "react-router-dom";
 
 function AllComplaints() {
 
@@ -8,148 +9,219 @@ function AllComplaints() {
   const [staffList, setStaffList] = useState([]);
 
   useEffect(() => {
-
-    const fetchComplaints = async () => {
-
-      try {
-
-        const token = localStorage.getItem("token");
-
-        const response = await API.get("/complaints/all", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        console.log(response.data);
-
-        setComplaints(response.data.complaints);
-
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const fetchStaff = async () => {
-
-      try {
-
-        const token = localStorage.getItem("token");
-
-        const response = await API.get("/users/staff", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setStaffList(response.data.staff);
-console.log(response.data.staff);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
     fetchComplaints();
     fetchStaff();
-
   }, []);
 
-  const assignComplaint = async (complaintId, staffId) => {
+  const fetchComplaints = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      const response = await API.get(
+        "/complaints/all",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setComplaints(response.data.complaints);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  const fetchStaff = async () => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      const response = await API.get(
+        "/users/staff",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setStaffList(response.data.staff);
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  const assignComplaint = async (
+    complaintId,
+    staffId
+  ) => {
+
+    if (!staffId) return;
 
     try {
 
       const token = localStorage.getItem("token");
 
       await API.patch(
-  `/complaints/assign/${complaintId}`,
-  { assignedTo: staffId },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
+        `/complaints/assign/${complaintId}`,
+        {
+          assignedTo: staffId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       alert("Complaint Assigned");
 
+      fetchComplaints();
+
     } catch (error) {
+
       console.log(error);
+
     }
   };
 
   return (
-    <div>
+    <div className="p-10">
 
-      <h1>All Complaints</h1>
+      <h1 className="text-3xl font-bold mb-6">
+        All Complaints
+      </h1>
 
-      <table border="1" cellPadding="10">
+      <table className="w-full border">
 
         <thead>
-          <tr>
-            <th>Title</th>
-            <th>Category</th>
-            <th>Student</th>
-            <th>Status</th>
-            <th>Assigned Staff</th>
-            <th>Action</th>
+
+          <tr className="bg-gray-200">
+
+            <th className="border p-3">
+              Title
+            </th>
+
+            <th className="border p-3">
+              Category
+            </th>
+
+            <th className="border p-3">
+              Priority
+            </th>
+
+            <th className="border p-3">
+              Student
+            </th>
+
+            <th className="border p-3">
+              Status
+            </th>
+
+            <th className="border p-3">
+              Assigned Staff
+            </th>
+
+            <th className="border p-3">
+              Action
+            </th>
+
+            <th className="border p-3">
+              Details
+            </th>
+
           </tr>
+
         </thead>
 
         <tbody>
 
-          {
-            complaints.map((complaint) => (
-              <tr key={complaint._id}>
+          {complaints.map((complaint) => (
 
-                <td>{complaint.title}</td>
+            <tr key={complaint._id}>
 
-                <td>{complaint.category}</td>
+              <td className="border p-3">
+                {complaint.title}
+              </td>
 
-                <td>
-                  {complaint.user?.name}
-                </td>
+              <td className="border p-3">
+                {complaint.aiResult?.category || "N/A"}
+              </td>
 
-                <td>
-                  <StatusBadge status={complaint.status} />
-                </td>
+              <td className="border p-3">
+                {complaint.aiResult?.priority || "N/A"}
+              </td>
 
-                <td>
-                  {complaint.assignedTo?.name || "Not Assigned"}
-                </td>
+              <td className="border p-3">
+                {complaint.student?.name}
+              </td>
 
-                <td>
+              <td className="border p-3">
+                <StatusBadge
+                  status={complaint.status}
+                />
+              </td>
 
-                  <select
-  onChange={(e) =>
-    assignComplaint(
-      complaint._id,
-      e.target.value
-    )
-  }
->
+              <td className="border p-3">
+                {complaint.assignedTo?.name ||
+                  "Not Assigned"}
+              </td>
 
-  <option value="">
-    Select Staff
-  </option>
+              <td className="border p-3">
 
-  {
-    staffList.map((staff) => (
-      <option
-        key={staff._id}
-        value={staff._id}
-      >
-        {staff.name}
-      </option>
-    ))
-  }
+                <select
+                  onChange={(e) =>
+                    assignComplaint(
+                      complaint._id,
+                      e.target.value
+                    )
+                  }
+                  className="border p-2"
+                >
 
-</select>
+                  <option value="">
+                    Select Staff
+                  </option>
 
-                </td>
+                  {staffList.map((staff) => (
 
-              </tr>
-            ))
-          }
+                    <option
+                      key={staff._id}
+                      value={staff._id}
+                    >
+                      {staff.name}
+                    </option>
+
+                  ))}
+
+                </select>
+
+              </td>
+
+              <td className="border p-3">
+
+                <Link
+                  to={`/complaints/${complaint._id}`}
+                  className="bg-blue-500 text-white px-3 py-2 rounded"
+                >
+                  View Details
+                </Link>
+
+              </td>
+
+            </tr>
+
+          ))}
 
         </tbody>
 

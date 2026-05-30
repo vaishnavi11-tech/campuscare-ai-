@@ -27,9 +27,16 @@ const registerStudent = async (req, res) => {
         });
 
         res.status(201).json({
-            message: "Student registered successfully",
-            user,
-        });
+  message: "Student registered successfully",
+  user: {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    department: user.department,
+    studentId: user.studentId,
+  },
+});
     } catch (error) {
         console.log(error);
 

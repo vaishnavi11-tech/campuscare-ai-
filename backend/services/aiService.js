@@ -18,8 +18,9 @@ Return ONLY valid JSON in this format:
 
 {
   "category": "",
-  "urgency": "",
-  "summary": ""
+  "priority": "",
+  "summary": "",
+  "suggestedResolution": ""
 }
 `;
 

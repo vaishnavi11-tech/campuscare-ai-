@@ -25,8 +25,17 @@ function Login() {
       const res = await API.post("/auth/login", formData);
 
       localStorage.setItem("token", res.data.token);
-
-      navigate("/dashboard");
+      localStorage.setItem("role", res.data.role);
+      localStorage.setItem("name", res.data.name);
+if (res.data.role === "admin") {
+  navigate("/admin-dashboard");
+}
+else if (res.data.role === "faculty") {
+  navigate("/faculty-dashboard");
+}
+else {
+  navigate("/dashboard");
+}
 
     } catch (error) {
 
@@ -103,7 +112,15 @@ function Login() {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-
+<p className="text-center mt-4 text-sm">
+  Don't have an account?{" "}
+  <span
+    onClick={() => navigate("/register")}
+    className="text-blue-600 cursor-pointer hover:underline"
+  >
+    Register
+  </span>
+</p>
         </form>
 
       </div>
