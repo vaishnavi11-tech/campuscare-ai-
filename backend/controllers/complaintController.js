@@ -1,26 +1,23 @@
 const Complaint = require("../models/Complaint");
-const Student = require("../models/Student");
+const User = require("../models/User");
 exports.createComplaint = async (req, res) => {
 
     try {
 
-        const { title, description, category } = req.body;
+        const { title, description } = req.body;
 
-        if (!title || !description || !category) {
+if (!title || !description) {
             return res.status(400).json({
                 success: false,
                 message: "Please fill all details"
             });
         }
 
-        const complaint = await Complaint.create({
-
-            title,
-            description,
-            category,
-            student: req.user.id
-
-        });
+       const complaint = await Complaint.create({
+    title,
+    description,
+    student: req.user.id
+});
 
         return res.status(201).json({
             success: true,
@@ -225,14 +222,11 @@ return res.status(200).json({
 };
 
            exports.assignComplaint = async (req, res) => {
-
     try {
 
         const complaintId = req.params.id;
-
         const { assignedTo } = req.body;
 
-        // Find complaint
         const complaint = await Complaint.findById(complaintId);
 
         if (!complaint) {
@@ -242,43 +236,33 @@ return res.status(200).json({
             });
         }
 
-        // Find staff
-        const staff = await Student.findById(assignedTo);
+        const faculty = await User.findById(assignedTo);
 
-        if (!staff) {
+        if (!faculty) {
             return res.status(404).json({
                 success: false,
-                message: "Staff not found"
+                message: "Faculty not found"
             });
         }
 
-        // Check category match
-        if (
-    complaint.category.trim().toLowerCase() !==
-    staff.category.trim().toLowerCase()
-) {
+        if (faculty.role !== "faculty") {
             return res.status(400).json({
                 success: false,
-                message: "Staff category does not match complaint category"
+                message: "User is not faculty"
             });
         }
 
-        // Assign complaint
         const updatedComplaint = await Complaint.findByIdAndUpdate(
-
             complaintId,
-
             {
                 assignedTo
             },
-
             {
                 new: true
             }
-
         )
         .populate("student", "name email")
-        .populate("assignedTo", "name email role category");
+        .populate("assignedTo", "name email role department");
 
         return res.status(200).json({
             success: true,
@@ -296,8 +280,9 @@ return res.status(200).json({
         });
 
     }
-
 };
+    
+   
        
 
 exports.getComplaintStats = async (req, res) => {

@@ -1,24 +1,41 @@
-
 const isAdmin = (req, res, next) => {
 
-    if(req.user.role !== "admin"){
+    if (req.user.role !== "admin") {
         return res.status(403).json({
-            success:false,
-            message:"Access denied. Admin only."
+            success: false,
+            message: "Access denied. Admin only."
         });
     }
 
     next();
 };
-const isStaff=(req,res,next) => {
-    if(req.user.role!=="staff"){
+
+const isFaculty = (req, res, next) => {
+
+    if (req.user.role !== "faculty") {
         return res.status(403).json({
-            sucess:false,
-            message:"Access Denied,Staff Only."
-        })
+            success: false,
+            message: "Access denied. Faculty only."
+        });
     }
+
     next();
-}
+};
 
-module.exports = { isAdmin,isStaff };
+const isStudent = (req, res, next) => {
 
+    if (req.user.role !== "student") {
+        return res.status(403).json({
+            success: false,
+            message: "Access denied. Student only."
+        });
+    }
+
+    next();
+};
+
+module.exports = {
+    isAdmin,
+    isFaculty,
+    isStudent
+};
