@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/api";
+import Layout from "../components/Layout";
 
 function AdminDashboard() {
 
   const navigate = useNavigate();
 
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    total: 0,
+    pending: 0,
+    inProgress: 0,
+    resolved: 0,
+  });
 
   useEffect(() => {
 
@@ -28,7 +34,9 @@ function AdminDashboard() {
         setStats(response.data.stats);
 
       } catch (error) {
+
         console.log(error);
+
       }
     };
 
@@ -37,64 +45,116 @@ function AdminDashboard() {
   }, []);
 
   return (
-    <div className="p-10">
+    <Layout>
+    <div className="min-h-screen bg-gray-100">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Admin Dashboard
-      </h1>
+      {/* Header */}
+      <div className="bg-indigo-700 text-white p-6 shadow">
 
-      <div className="grid grid-cols-4 gap-5">
+        <h1 className="text-3xl font-bold">
+          CampusCare Admin Portal
+        </h1>
 
-        <div className="border p-5 rounded shadow">
-          <h3 className="font-semibold">
-            Total Complaints
-          </h3>
+        <p className="mt-2 text-indigo-100">
+          Monitor complaints and manage grievance resolution.
+        </p>
 
-          <p className="text-2xl">
-            {stats?.total || 0}
+      </div>
+
+      <div className="p-8">
+
+        {/* Welcome Card */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8">
+
+          <h2 className="text-2xl font-semibold">
+            Admin Dashboard
+          </h2>
+
+          <p className="text-gray-600 mt-2">
+            View complaint statistics, assign staff and track resolutions.
           </p>
+
         </div>
 
-        <div className="border p-5 rounded shadow">
-          <h3 className="font-semibold">
-            Pending
-          </h3>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-          <p className="text-2xl">
-            {stats?.pending || 0}
-          </p>
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-gray-500">
+              Total Complaints
+            </h3>
+
+            <p className="text-4xl font-bold mt-2">
+              {stats.total}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-gray-500">
+              Pending
+            </h3>
+
+            <p className="text-4xl font-bold text-yellow-500 mt-2">
+              {stats.pending}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-gray-500">
+              In Progress
+            </h3>
+
+            <p className="text-4xl font-bold text-blue-500 mt-2">
+              {stats.inProgress}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-gray-500">
+              Resolved
+            </h3>
+
+            <p className="text-4xl font-bold text-green-500 mt-2">
+              {stats.resolved}
+            </p>
+          </div>
+
         </div>
 
-        <div className="border p-5 rounded shadow">
-          <h3 className="font-semibold">
-            In Progress
-          </h3>
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow p-6">
 
-          <p className="text-2xl">
-            {stats?.inProgress || 0}
-          </p>
-        </div>
+          <h2 className="text-xl font-semibold mb-4">
+            Quick Actions
+          </h2>
 
-        <div className="border p-5 rounded shadow">
-          <h3 className="font-semibold">
-            Resolved
-          </h3>
+          <div className="flex gap-4 flex-wrap">
 
-          <p className="text-2xl">
-            {stats?.resolved || 0}
-          </p>
+            <button
+              onClick={() => navigate("/complaints")}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+            >
+              View All Complaints
+            </button>
+            <button
+  onClick={() =>
+    navigate("/manage-staff")
+  }
+  className="mt-4 ml-4 bg-green-600 text-white px-6 py-3 rounded-xl"
+>
+  Manage Staff
+</button>
+
+          </div>
+
         </div>
 
       </div>
 
-      <button
-        onClick={() => navigate("/complaints")}
-        className="mt-8 bg-blue-600 text-white px-6 py-3 rounded"
-      >
-        View All Complaints
-      </button>
-
-    </div>
+   
+   
+     </div>
+      </Layout>
   );
 }
 

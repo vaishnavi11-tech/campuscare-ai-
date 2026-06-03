@@ -1,5 +1,6 @@
 import { useState } from "react";
 import API from "../api/api";
+import Layout from "../components/Layout";
 
 function CreateComplaint() {
 
@@ -53,6 +54,7 @@ function CreateComplaint() {
   };
 
   return (
+    <Layout>
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
 
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl">
@@ -148,6 +150,7 @@ function CreateComplaint() {
       </div>
 
     </div>
+    </Layout>
   );
 }
 

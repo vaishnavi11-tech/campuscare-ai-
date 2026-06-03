@@ -1,7 +1,8 @@
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
 const { analyzeComplaint } = require("../services/aiService");
-
+const { checkEscalation,} = require( "../services/escalationService");
+const { findSimilarComplaints } =require("../services/similarityService");
 exports.createComplaint = async (req, res) => {
   try {
     const { title, description } = req.body;
@@ -35,12 +36,22 @@ exports.createComplaint = async (req, res) => {
       const parsedResult = JSON.parse(cleanedResult);
 console.log("PARSED AI RESULT:", parsedResult);
       // Store AI Result
-     complaint.aiResult = {
+ const similarComplaints =
+  await findSimilarComplaints(
+    parsedResult.summary,
+    parsedResult.category
+  );
+
+complaint.aiResult = {
   category: parsedResult.category,
   priority: parsedResult.priority.toLowerCase(),
+  summary: parsedResult.summary,
   suggestedResolution:
     parsedResult.suggestedResolution,
 };
+
+complaint.similarComplaints =
+  similarComplaints;
 complaint.category = parsedResult.category;
       await complaint.save();
 
@@ -127,7 +138,8 @@ exports.updateComplaintStatus = async (req, res) => {
             complaintId,
 
             {
-                status
+                status,
+                 lastActivityAt: new Date()
             },
 
             {
@@ -197,7 +209,7 @@ exports.deleteComplaint = async (req, res) => {
 exports.getAllComplaints = async (req, res) => {
 
     try {
-
+await checkEscalation();
         const filter = {};
         const page = parseInt(req.query.page) || 1;
 const limit = parseInt(req.query.limit) || 5;
@@ -282,8 +294,9 @@ return res.status(200).json({
         const updatedComplaint = await Complaint.findByIdAndUpdate(
             complaintId,
             {
-                assignedTo
-            },
+  assignedTo,
+  lastActivityAt: new Date()
+},
             {
                 new: true
             }
@@ -309,9 +322,208 @@ return res.status(200).json({
     }
 };
     
-   
-       
+ 
+exports.recommendStaff = async (req, res) => {
 
+    try {
+
+        const { complaintId } = req.params;
+
+        const complaint =
+            await Complaint.findById(
+                complaintId
+            )
+            .populate(
+                "similarComplaints",
+                "assignedTo status"
+            );
+
+        if (!complaint) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Complaint not found"
+            });
+
+        }
+
+        const category =
+            complaint.category;
+
+        /* =========================
+           PRIORITY 1:
+           RESOLVED SIMILAR COMPLAINT
+        ========================== */
+
+        const resolvedSimilar =
+            complaint.similarComplaints.find(
+                (c) =>
+                    c.assignedTo &&
+                    c.status === "resolved"
+            );
+
+        if (resolvedSimilar) {
+
+            const faculty =
+                await User.findById(
+                    resolvedSimilar.assignedTo
+                );
+
+            return res.status(200).json({
+                success: true,
+                mode: "similarity",
+                reason:
+                    "Successfully resolved a similar complaint",
+                recommended: {
+                    faculty
+                }
+            });
+
+        }
+
+        /* =========================
+           PRIORITY 2:
+           IN-PROGRESS SIMILAR COMPLAINT
+        ========================== */
+
+        const activeSimilar =
+            complaint.similarComplaints.find(
+                (c) =>
+                    c.assignedTo &&
+                    c.status === "in-progress"
+            );
+
+        if (activeSimilar) {
+
+            const faculty =
+                await User.findById(
+                    activeSimilar.assignedTo
+                );
+
+            return res.status(200).json({
+                success: true,
+                mode: "similarity",
+                reason:
+                    "Currently handling a similar complaint",
+                recommended: {
+                    faculty
+                }
+            });
+
+        }
+
+        /* =========================
+           PRIORITY 3:
+           WORKLOAD LOGIC
+        ========================== */
+
+        const facultyList =
+            await User.find({
+                role: "faculty",
+                expertise: category
+            });
+
+        const staffWithWorkload = [];
+
+        for (const faculty of facultyList) {
+
+            const workload =
+                await Complaint.countDocuments({
+                    assignedTo: faculty._id,
+                    status: {
+                        $ne: "resolved"
+                    }
+                });
+
+            staffWithWorkload.push({
+                faculty,
+                workload
+            });
+
+        }
+
+        staffWithWorkload.sort(
+            (a, b) =>
+                a.workload - b.workload
+        );
+
+        return res.status(200).json({
+            success: true,
+            mode: "workload",
+            recommended:
+                staffWithWorkload[0] || null,
+            allStaff:
+                staffWithWorkload
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+
+    }
+
+};
+
+
+    
+           
+       
+          
+         
+     
+       
+exports.addNote = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const { text } = req.body;
+
+        const complaint =
+            await Complaint.findById(id);
+
+        if (!complaint) {
+
+            return res.status(404).json({
+                success: false,
+                message: "Complaint not found"
+            });
+
+        }
+        console.log(req.body);
+console.log(text);
+
+        complaint.notes.push({
+            text
+        });
+        complaint.lastActivityAt = new Date();
+
+        await complaint.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Note added successfully",
+            notes: complaint.notes
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error"
+        });
+
+    }
+
+};
 exports.getComplaintStats = async (req, res) => {
 
     try {
@@ -413,7 +625,11 @@ exports.getComplaintById = async (req, res) => {
       req.params.id
     )
       .populate("student", "name email")
-      .populate("assignedTo", "name email");
+    .populate("assignedTo", "name email")
+.populate(
+  "similarComplaints",
+  "title assignedTo status"
+)
 
     if (!complaint) {
       return res.status(404).json({

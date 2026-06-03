@@ -1,39 +1,13 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
+import Layout from "../components/Layout";
 
 function FacultyDashboard() {
 
   const [complaints, setComplaints] = useState([]);
-
+const [notes, setNotes] = useState({});
   useEffect(() => {
     fetchComplaints();
-    const updateStatus = async (
-  complaintId,
-  status
-) => {
-
-  try {
-
-    const token = localStorage.getItem("token");
-
-    await API.patch(
-      `/complaints/${complaintId}`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    fetchComplaints();
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-};
   }, []);
 
   const fetchComplaints = async () => {
@@ -59,24 +33,63 @@ function FacultyDashboard() {
 
     }
   };
-const updateStatus = async (
-  complaintId,
-  status
+
+  const updateStatus = async (
+    complaintId,
+    status
+  ) => {
+
+    try {
+
+      const token = localStorage.getItem("token");
+
+      await API.patch(
+        `/complaints/${complaintId}`,
+        { status },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      fetchComplaints();
+
+    } catch (error) {
+
+      console.log(error);
+
+    }
+  };
+
+  const addNote = async (
+  complaintId
 ) => {
 
   try {
 
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
-    await API.patch(
-      `/complaints/${complaintId}`,
-      { status },
+    await API.post(
+      `/complaints/${complaintId}/note`,
+      {
+        text: notes[complaintId],
+      },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization:
+            `Bearer ${token}`,
         },
       }
     );
+
+    alert("Note Added");
+
+    setNotes({
+      ...notes,
+      [complaintId]: "",
+    });
 
     fetchComplaints();
 
@@ -85,104 +98,162 @@ const updateStatus = async (
     console.log(error);
 
   }
+
 };
   return (
-    <div className="p-10">
+<Layout> 
+<div className="min-h-screen bg-gray-100 p-10">
 
-      <h1 className="text-3xl font-bold mb-6">
-        Faculty Dashboard
-      </h1>
+      <div className="mb-8">
 
-      <table className="w-full border">
+        <h1 className="text-4xl font-bold">
+          Faculty Dashboard
+        </h1>
 
-        <thead>
+        <p className="text-gray-600 mt-2">
+          Manage assigned complaints and update their status.
+        </p>
 
-          <tr className="bg-gray-200">
+      </div>
 
-            <th className="border p-3">
-              Title
-            </th>
+      <div className="flex flex-col gap-6">
 
-            <th className="border p-3">
-              Student
-            </th>
+        {complaints.map((complaint) => (
 
-            <th className="border p-3">
-              Category
-            </th>
+          <div
+            key={complaint._id}
+            className="bg-white rounded-xl shadow p-6"
+          >
 
-            <th className="border p-3">
-              Priority
-            </th>
+            <div className="flex justify-between items-start mb-4">
 
-            <th className="border p-3">
-              Status
-            </th>
+             <div className="flex items-center gap-3">
 
-          </tr>
+  <h2 className="text-2xl font-semibold">
+    {complaint.title}
+  </h2>
 
-        </thead>
+  {complaint.escalated && (
 
-        <tbody>
+    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
+      🚨 Escalated
+    </span>
 
-          {complaints.map((complaint) => (
+  )}
 
-            <tr key={complaint._id}>
+</div>
+              <select
+                value={complaint.status}
+                onChange={(e) =>
+                  updateStatus(
+                    complaint._id,
+                    e.target.value
+                  )
+                }
+                className="border p-2 rounded"
+              >
 
-              <td className="border p-3">
-                {complaint.title}
-              </td>
+                <option value="pending">
+                  Pending
+                </option>
 
-              <td className="border p-3">
-                {complaint.student?.name}
-              </td>
+                <option value="in-progress">
+                  In Progress
+                </option>
 
-              <td className="border p-3">
-                {complaint.aiResult?.category || "N/A"}
-              </td>
+                <option value="resolved">
+                  Resolved
+                </option>
 
-              <td className="border p-3">
-                {complaint.aiResult?.priority || "N/A"}
-              </td>
+              </select>
+              <div className="mt-4">
 
-             <td className="border p-3">
-
-  <select
-    value={complaint.status}
+  <textarea
+    placeholder="Add progress note..."
+    value={
+      notes[complaint._id] || ""
+    }
     onChange={(e) =>
-      updateStatus(
-        complaint._id,
-        e.target.value
+      setNotes({
+        ...notes,
+        [complaint._id]:
+          e.target.value,
+      })
+    }
+    className="w-full border p-3 rounded-lg"
+    rows="3"
+  />
+
+  <button
+    onClick={() =>
+      addNote(
+        complaint._id
       )
     }
+    className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
   >
+    Add Note
+  </button>
 
-    <option value="pending">
-      Pending
-    </option>
+</div>
 
-    <option value="in-progress">
-      In Progress
-    </option>
+            </div>
 
-    <option value="resolved">
-      Resolved
-    </option>
+            <div className="grid md:grid-cols-2 gap-4">
 
-  </select>
+              <div>
 
-</td>
+                <p>
+                  <span className="font-semibold">
+                    Student:
+                  </span>{" "}
+                  {complaint.student?.name}
+                </p>
 
-            </tr>
+                <p className="mt-2">
+                  <span className="font-semibold">
+                    Category:
+                  </span>{" "}
+                  {complaint.aiResult?.category || "N/A"}
+                </p>
 
-          ))}
+                <p className="mt-2">
+                  <span className="font-semibold">
+                    Priority:
+                  </span>{" "}
+                  {complaint.aiResult?.priority || "N/A"}
+                </p>
 
-        </tbody>
+              </div>
 
-      </table>
+              <div>
+
+                <p className="font-semibold mb-2">
+                  Suggested Resolution
+                </p>
+
+                <div className="bg-gray-100 rounded p-3">
+
+                  {complaint.aiResult?.suggestedResolution ||
+                    "No AI suggestion available"}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
 
     </div>
+
+  </Layout> 
   );
 }
 
+ 
 export default FacultyDashboard;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API from "../api/api";
+import Layout from "../components/Layout";
 
 function MyComplaints() {
   const [complaints, setComplaints] = useState([]);
@@ -43,6 +44,7 @@ function MyComplaints() {
   };
 
   return (
+    <Layout>
     <div className="min-h-screen bg-gray-100 p-10">
       <h1 className="text-3xl font-bold mb-6">
         My Complaints
@@ -99,55 +101,9 @@ function MyComplaints() {
                 </p>
               </div>
 
-              {/* AI Analysis Section */}
-              <div className="mt-5 border-t pt-4">
-                <h3 className="text-lg font-semibold mb-3">
-                  AI Analysis
-                </h3>
+             
+              
 
-                <p>
-                  <span className="font-semibold">
-                    AI Category:
-                  </span>{" "}
-                  {complaint.aiResult?.category ||
-                    "Pending Analysis"}
-                </p>
-
-                <p>
-                  <span className="font-semibold">
-                    AI Priority:
-                  </span>{" "}
-                  {complaint.aiResult?.priority ||
-                    "Pending Analysis"}
-                </p>
-
-                <p>
-                  <span className="font-semibold">
-                    Sentiment:
-                  </span>{" "}
-                  {complaint.aiResult?.sentiment?.label ||
-                    "Pending Analysis"}
-                </p>
-
-                <p>
-                  <span className="font-semibold">
-                    Confidence:
-                  </span>{" "}
-                  {complaint.aiResult?.confidence
-                    ? `${(
-                        complaint.aiResult.confidence * 100
-                      ).toFixed(1)}%`
-                    : "Pending Analysis"}
-                </p>
-
-                <p className="mt-2">
-                  <span className="font-semibold">
-                    Suggested Resolution:
-                  </span>{" "}
-                  {complaint.aiResult?.suggestedResolution ||
-                    "Pending Analysis"}
-                </p>
-              </div>
 
               <div className="mt-4 text-sm text-gray-500">
                 Created:{" "}
@@ -160,6 +116,7 @@ function MyComplaints() {
         </div>
       )}
     </div>
+    </Layout>
   );
 }
 

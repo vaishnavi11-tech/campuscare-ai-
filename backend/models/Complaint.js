@@ -36,6 +36,34 @@ const complaintSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    similarComplaints: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Complaint",
+  },
+],
+    notes: [
+  {
+    text: {
+      type: String,
+      required: true,
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+],
+lastActivityAt: {
+  type: Date,
+  default: Date.now,
+},
+
+escalated: {
+  type: Boolean,
+  default: false,
+},
 
     // Future RAG support
     embedding: {
@@ -44,29 +72,38 @@ const complaintSchema = new mongoose.Schema(
     },
 
     aiResult: {
-      sentiment: {
-        label: String,
-        score: Number,
-      },
 
-      category: String,
+  sentiment: {
+    label: String,
+    score: Number,
+  },
 
-      priority: {
-        type: String,
-        enum: ["low", "medium", "high", "critical"],
-      },
+  category: String,
 
-      suggestedResolution: String,
+  priority: {
+    type: String,
+    enum: [
+      "low",
+      "medium",
+      "high",
+      "critical",
+    ],
+  },
 
-      confidence: Number,
+  summary: String,
 
-      similarCases: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Complaint",
-        },
-      ],
+  suggestedResolution: String,
+
+  confidence: Number,
+
+  similarCases: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Complaint",
     },
+  ],
+},
+
   },
   {
     timestamps: true,

@@ -10,12 +10,17 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AllComplaints from "./pages/AllComplaints";
 import Register from "./pages/Register";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import ManageStaff from "./pages/ManageStaff";
 function App() {
 
   return (
     <BrowserRouter>
 
       <Routes>
+      <Route
+  path="/manage-staff"
+  element={<ManageStaff />}
+/>
       <Route
   path="/my-complaints"
   element={
