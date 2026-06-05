@@ -79,7 +79,8 @@ escalated: {
   },
 
   category: String,
-
+    subCategory: String,
+location: String,
   priority: {
     type: String,
     enum: [

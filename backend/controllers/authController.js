@@ -4,7 +4,15 @@ const jwt = require("jsonwebtoken");
 
 const registerStudent = async (req, res) => {
     try {
-        const { name, email, password, department, studentId } = req.body;
+        const {
+  name,
+  email,
+  password,
+  department,
+  gender,
+  year,
+  studentId,
+} = req.body;
 
         const userExists = await User.findOne({ email });
 
@@ -17,25 +25,29 @@ const registerStudent = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            department,
-            studentId,
-            role: "student",
-        });
+      const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    department,
+    gender,
+    year,
+    studentId,
+    role: "student",
+});
 
         res.status(201).json({
   message: "Student registered successfully",
-  user: {
-    id: user._id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    department: user.department,
-    studentId: user.studentId,
-  },
+user: {
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  department: user.department,
+  gender: user.gender,
+  year: user.year,
+  studentId: user.studentId,
+},
 });
     } catch (error) {
         console.log(error);

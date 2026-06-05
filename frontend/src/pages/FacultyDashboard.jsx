@@ -216,6 +216,12 @@ const [notes, setNotes] = useState({});
                   </span>{" "}
                   {complaint.aiResult?.category || "N/A"}
                 </p>
+                <p className="mt-2">
+  <span className="font-semibold">
+    Sub Category:
+  </span>{" "}
+  {complaint.aiResult?.subCategory || "N/A"}
+</p>
 
                 <p className="mt-2">
                   <span className="font-semibold">

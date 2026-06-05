@@ -28,9 +28,25 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-expertise: {
-  type: String,
-  default: null,
+
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      default: null,
+    },
+
+    year: {
+      type: Number,
+      default: null,
+    },
+
+    expertise: {
+      type: String,
+      default: null,
+    },
+subExpertise: {
+  type: [String],
+  default: [],
 },
     studentId: {
       type: String,

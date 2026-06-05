@@ -3,122 +3,91 @@ import API from "../api/api";
 import Layout from "../components/Layout";
 
 function ManageStaff() {
-
   const [staff, setStaff] = useState([]);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    expertise: "",
-  });
+ const [formData, setFormData] = useState({
+  name: "",
+  email: "",
+  password: "",
+  expertise: "",
+  department: "",
+})
 
   useEffect(() => {
     fetchStaff();
   }, []);
 
   const fetchStaff = async () => {
-
     try {
+      const token = localStorage.getItem("token");
 
-      const token =
-        localStorage.getItem("token");
-
-      const response =
-        await API.get(
-          "/users/staff",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+      const response = await API.get(
+        "/users/staff",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setStaff(response.data.staff);
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
-  const handleCreateStaff = async (
-    e
-  ) => {
-
+  const handleCreateStaff = async (e) => {
     e.preventDefault();
 
     try {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       await API.post(
         "/users/staff",
         formData,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       setFormData({
-        name: "",
-        email: "",
-        password: "",
-        expertise: "",
-      });
+  name: "",
+  email: "",
+  password: "",
+  expertise: "",
+  department: "",
+});
 
       fetchStaff();
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
-  const handleDelete = async (
-    id
-  ) => {
-
+  const handleDelete = async (id) => {
     try {
-
-      const token =
-        localStorage.getItem("token");
+      const token = localStorage.getItem("token");
 
       await API.delete(
         `/users/staff/${id}`,
         {
           headers: {
-            Authorization:
-              `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
       fetchStaff();
-
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   return (
-
     <Layout>
-
       <div className="max-w-6xl mx-auto p-8">
-
         <h1 className="text-4xl font-bold mb-2">
           Staff Management
         </h1>
@@ -128,7 +97,6 @@ function ManageStaff() {
         </p>
 
         <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
-
           <h2 className="text-xl font-bold mb-4">
             Add Staff
           </h2>
@@ -137,7 +105,6 @@ function ManageStaff() {
             onSubmit={handleCreateStaff}
             className="grid md:grid-cols-2 gap-4"
           >
-
             <input
               type="text"
               placeholder="Name"
@@ -191,7 +158,6 @@ function ManageStaff() {
               className="border p-3 rounded-lg"
               required
             >
-
               <option value="">
                 Select Expertise
               </option>
@@ -227,42 +193,80 @@ function ManageStaff() {
               <option value="Student Welfare">
                 Student Welfare
               </option>
-
             </select>
+{formData.expertise === "Academic Affairs" && (
 
+  <select
+    value={formData.department}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        department: e.target.value,
+      })
+    }
+    className="border p-3 rounded-lg"
+    required
+  >
+
+    <option value="">
+      Select Department
+    </option>
+
+    <option value="CSE">CSE</option>
+    <option value="IT">IT</option>
+    <option value="ECE">ECE</option>
+    <option value="Electrical">Electrical</option>
+    <option value="Civil">Civil</option>
+    <option value="Instrumentation">
+      Instrumentation
+    </option>
+    <option value="Mechanical">
+      Mechanical
+    </option>
+    <option value="Production">
+      Production
+    </option>
+    <option value="Textile">
+      Textile
+    </option>
+    <option value="Chemical">
+      Chemical
+    </option>
+
+  </select>
+
+)}
             <button
+              type="submit"
               className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
             >
               Create Staff
             </button>
-
           </form>
-
         </div>
 
         <div className="space-y-4">
-
           {staff.map((member) => (
-
             <div
               key={member._id}
               className="bg-white shadow-lg rounded-2xl p-5 flex justify-between items-center"
             >
-
               <div>
-
                 <h3 className="font-bold text-lg">
                   {member.name}
                 </h3>
 
-                <p>
-                  {member.email}
-                </p>
+                <p>{member.email}</p>
 
-                <p className="text-sm text-gray-500">
-                  Expertise: {member.expertise}
-                </p>
+               <p className="text-sm text-gray-500">
+  Expertise: {member.expertise}
+</p>
 
+{member.department && (
+  <p className="text-sm text-gray-500">
+    Department: {member.department}
+  </p>
+)}
               </div>
 
               <button
@@ -273,17 +277,11 @@ function ManageStaff() {
               >
                 Delete
               </button>
-
             </div>
-
           ))}
-
         </div>
-
       </div>
-
     </Layout>
-
   );
 }
 

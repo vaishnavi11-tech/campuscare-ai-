@@ -9,7 +9,7 @@ const getAllStaff = async (req, res) => {
   role: "faculty",
 })
 .select("-password")
-.select("name email expertise");
+.select( "name email expertise subExpertise");
 
     res.status(200).json({
       success: true,
@@ -31,12 +31,14 @@ const createStaff = async (req, res) => {
 
   try {
 
-const {
-  name,
-  email,
-  password,
-  expertise,
-} = req.body;
+    const {
+      name,
+      email,
+      password,
+      expertise,
+      department,
+    } = req.body;
+
     const existingUser =
       await User.findOne({ email });
 
@@ -52,14 +54,18 @@ const {
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
- const staff =
-  await User.create({
-    name,
-    email,
-    password: hashedPassword,
-    role: "faculty",
-    expertise,
-  });
+    const staff = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: "faculty",
+      expertise,
+      department:
+        expertise === "Academic Affairs"
+          ? department
+          : null,
+    });
+
     res.status(201).json({
       success: true,
       staff,
@@ -160,6 +166,29 @@ const recommendStaff = async (req, res) => {
 
     const { category } = req.params;
 
+    // DIRECT AUTHORITY ROUTING
+
+    if (
+      category === "Safety & Security" ||
+      category === "Student Welfare"
+    ) {
+
+      const authority = await User.findOne({
+        role: "faculty",
+        expertise: category,
+      });
+
+      return res.status(200).json({
+        success: true,
+        recommended: authority,
+        allStaff: authority ? [authority] : [],
+        routingType: "DIRECT_AUTHORITY",
+      });
+
+    }
+
+    // NORMAL FLOW
+
     const facultyList = await User.find({
       role: "faculty",
       expertise: category,
@@ -188,8 +217,7 @@ const recommendStaff = async (req, res) => {
     }
 
     staffWithWorkload.sort(
-      (a, b) =>
-        a.workload - b.workload
+      (a, b) => a.workload - b.workload
     );
 
     return res.status(200).json({
@@ -198,6 +226,7 @@ const recommendStaff = async (req, res) => {
         staffWithWorkload[0] || null,
       allStaff:
         staffWithWorkload,
+      routingType: "WORKLOAD",
     });
 
   } catch (error) {
@@ -212,6 +241,8 @@ const recommendStaff = async (req, res) => {
   }
 
 };
+
+      
 module.exports = {
   getAllStaff,
   createStaff,

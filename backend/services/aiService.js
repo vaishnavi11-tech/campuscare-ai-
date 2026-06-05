@@ -7,7 +7,7 @@ const groq = new Groq({
 
 async function analyzeComplaint(title, description) {
 
-const prompt = `
+  const prompt = `
 Analyze this campus complaint.
 
 Title: ${title}
@@ -86,15 +86,102 @@ Student Welfare:
 - Student support
 - Personal wellbeing
 
+SubCategory Rules:
+
+Academic Affairs:
+- Teaching Quality
+- Attendance
+- Examinations
+- Results
+- Timetable
+- Projects & Internships
+- Laboratory Issues
+- Certificates
+
+IT Services:
+- WiFi & Network
+- Student Portal
+- College Email
+- Software Access
+- Computer Lab
+- Smart Classroom
+
+Hostel & Accommodation:
+- Room Allocation
+- Room Maintenance
+- Mess Food
+- Water Supply
+- Electricity
+- Cleanliness
+- Hostel Security
+
+Campus Facilities:
+- Classroom Infrastructure
+- Furniture
+- Electricity
+- Cleanliness
+- Drinking Water
+- Sports Facilities
+- Parking
+- Auditorium
+
+Library Services:
+- Book Availability
+- Digital Library
+- Reading Room
+- Library Infrastructure
+- Borrowing & Fine
+
+Administration:
+- ID Card
+- Fees & Payments
+- Scholarships
+- Bonafide Certificate
+- Official Documents
+- Student Records
+- Transfers
+
+Safety & Security:
+- Harassment
+- Ragging
+- Theft
+- Security Concern
+- Emergency Incident
+
+Student Welfare:
+- Mental Health
+- Counseling
+- Financial Assistance
+- Career Guidance
+- Student Support
+
 Priority must be ONLY:
+
 - low
 - medium
 - high
+
+Location Rules:
+
+Extract a specific location if mentioned.
+
+Examples:
+
+Lab 5
+Lab 2
+A-203
+Library
+Girls Hostel Block B
+Parking Area
+
+If no location is mentioned,
+return "General".
 
 Return ONLY valid JSON.
 
 {
   "category": "",
+  "subCategory": "",
   "priority": "",
   "summary": "",
   "suggestedResolution": ""
@@ -103,26 +190,31 @@ Return ONLY valid JSON.
 Rules:
 
 1. category MUST exactly match one category above.
-2. priority MUST be low, medium or high.
-3. summary should be one short sentence.
-4. suggestedResolution should be practical and concise.
-5. Do not return markdown.
-6. Do not return explanation outside JSON.
+2. subCategory MUST exactly match one subCategory belonging to that category.
+3. priority MUST be low, medium or high.
+4. summary should be one short sentence.
+5. suggestedResolution should be practical and concise.
+6. Do not return markdown.
+7. Do not return explanation outside JSON.
 `;
 
+  const response =
+    await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
 
-  const response = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  });
-
-  return response.choices[0].message.content;
+  return response
+    .choices[0]
+    .message
+    .content;
 }
+
 async function askGroq(prompt) {
 
   const response =
@@ -140,7 +232,9 @@ async function askGroq(prompt) {
     .choices[0]
     .message
     .content;
-
 }
 
-module.exports = { analyzeComplaint,askGroq };
+module.exports = {
+  analyzeComplaint,
+  askGroq,
+};

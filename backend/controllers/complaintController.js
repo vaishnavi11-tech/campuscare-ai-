@@ -44,6 +44,8 @@ console.log("PARSED AI RESULT:", parsedResult);
 
 complaint.aiResult = {
   category: parsedResult.category,
+  subCategory: parsedResult.subCategory,
+  location: parsedResult.location,
   priority: parsedResult.priority.toLowerCase(),
   summary: parsedResult.summary,
   suggestedResolution:
@@ -348,8 +350,7 @@ exports.recommendStaff = async (req, res) => {
         }
 
         const category =
-            complaint.category;
-
+    complaint.aiResult?.category;
         /* =========================
            PRIORITY 1:
            RESOLVED SIMILAR COMPLAINT
@@ -417,12 +418,32 @@ exports.recommendStaff = async (req, res) => {
            WORKLOAD LOGIC
         ========================== */
 
-        const facultyList =
-            await User.find({
-                role: "faculty",
-                expertise: category
-            });
+      let facultyList = [];
 
+if (category === "Academic Affairs") {
+
+    const student =
+        await User.findById(
+            complaint.student
+        );
+
+    facultyList =
+        await User.find({
+            role: "faculty",
+            expertise: "Academic Affairs",
+            department:
+                student.department,
+        });
+
+} else {
+
+    facultyList =
+        await User.find({
+            role: "faculty",
+            expertise: category,
+        });
+
+}
         const staffWithWorkload = [];
 
         for (const faculty of facultyList) {
