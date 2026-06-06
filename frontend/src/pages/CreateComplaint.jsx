@@ -77,9 +77,7 @@ function CreateComplaint() {
               <h2 className="text-2xl font-bold mb-4">AI Analysis</h2>
               <p className="mb-2"><strong>Category:</strong> {aiResult.category}</p>
               <p className="mb-2"><strong>Priority:</strong> {aiResult.priority}</p>
-              {aiResult.suggestedResolution && (
-                <p className="mb-2"><strong>Suggested Resolution:</strong> {aiResult.suggestedResolution}</p>
-              )}
+             
             </div>
           )}
         </div>

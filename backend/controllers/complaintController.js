@@ -231,8 +231,10 @@ if (req.query.search) {
     };
 }
        const complaints = await Complaint.find(filter)
-
-.populate("student", "name email")
+.populate(
+  "student",
+  "name email gender department"
+)
 .populate("assignedTo", "name email")
 .sort({ createdAt: -1 })
 .skip(skip)
@@ -320,176 +322,326 @@ return res.status(200).json({
             success: false,
             message: "Server error"
         });
-
     }
 };
-    
- 
+
 exports.recommendStaff = async (req, res) => {
 
-    try {
+try {
 
-        const { complaintId } = req.params;
+const { complaintId } = req.params;
 
-        const complaint =
-            await Complaint.findById(
-                complaintId
-            )
-            .populate(
-                "similarComplaints",
-                "assignedTo status"
-            );
+const complaint =
+  await Complaint.findById(
+    complaintId
+  ).populate(
+    "similarComplaints",
+    "assignedTo status"
+  );
 
-        if (!complaint) {
+if (!complaint) {
+  return res.status(404).json({
+    success: false,
+    message: "Complaint not found",
+  });
+}
 
-            return res.status(404).json({
-                success: false,
-                message: "Complaint not found"
-            });
+const student =
+  await User.findById(
+    complaint.student
+  );
 
-        }
+const category =
+  complaint.aiResult?.category;
 
-        const category =
-    complaint.aiResult?.category;
-        /* =========================
-           PRIORITY 1:
-           RESOLVED SIMILAR COMPLAINT
-        ========================== */
+let facultyList = [];
 
-        const resolvedSimilar =
-            complaint.similarComplaints.find(
-                (c) =>
-                    c.assignedTo &&
-                    c.status === "resolved"
-            );
+/* =========================
+   BUILD CANDIDATE POOL
+========================= */
 
-        if (resolvedSimilar) {
+if (
+  category ===
+  "Safety & Security"
+) {
 
-            const faculty =
-                await User.findById(
-                    resolvedSimilar.assignedTo
-                );
-
-            return res.status(200).json({
-                success: true,
-                mode: "similarity",
-                reason:
-                    "Successfully resolved a similar complaint",
-                recommended: {
-                    faculty
-                }
-            });
-
-        }
-
-        /* =========================
-           PRIORITY 2:
-           IN-PROGRESS SIMILAR COMPLAINT
-        ========================== */
-
-        const activeSimilar =
-            complaint.similarComplaints.find(
-                (c) =>
-                    c.assignedTo &&
-                    c.status === "in-progress"
-            );
-
-        if (activeSimilar) {
-
-            const faculty =
-                await User.findById(
-                    activeSimilar.assignedTo
-                );
-
-            return res.status(200).json({
-                success: true,
-                mode: "similarity",
-                reason:
-                    "Currently handling a similar complaint",
-                recommended: {
-                    faculty
-                }
-            });
-
-        }
-
-        /* =========================
-           PRIORITY 3:
-           WORKLOAD LOGIC
-        ========================== */
-
-      let facultyList = [];
-
-if (category === "Academic Affairs") {
-
-    const student =
-        await User.findById(
-            complaint.student
-        );
-
-    facultyList =
-        await User.find({
-            role: "faculty",
-            expertise: "Academic Affairs",
-            department:
-                student.department,
-        });
-
-} else {
-
-    facultyList =
-        await User.find({
-            role: "faculty",
-            expertise: category,
-        });
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Safety & Security",
+  });
 
 }
-        const staffWithWorkload = [];
 
-        for (const faculty of facultyList) {
+else if (
+  category ===
+  "Student Welfare"
+) {
 
-            const workload =
-                await Complaint.countDocuments({
-                    assignedTo: faculty._id,
-                    status: {
-                        $ne: "resolved"
-                    }
-                });
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Student Welfare",
+  });
 
-            staffWithWorkload.push({
-                faculty,
-                workload
-            });
+}
 
-        }
+else if (
+  category ===
+  "Library Services"
+) {
 
-        staffWithWorkload.sort(
-            (a, b) =>
-                a.workload - b.workload
-        );
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Library Services",
+  });
 
-        return res.status(200).json({
-            success: true,
-            mode: "workload",
-            recommended:
-                staffWithWorkload[0] || null,
-            allStaff:
-                staffWithWorkload
-        });
+}
 
-    } catch (error) {
+else if (
+  category ===
+  "Administration"
+) {
 
-        console.log(error);
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Administration",
+  });
 
-        return res.status(500).json({
-            success: false,
-            message: "Server error"
-        });
+}
+
+else if (
+  category ===
+  "Academic Affairs"
+) {
+
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Academic Affairs",
+    department:
+      student.department,
+  });
+
+}
+
+else if (
+  category ===
+  "Hostel & Accommodation"
+) {
+
+  const wing =
+    student.gender === "male"
+      ? "boys"
+      : "girls";
+
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Hostel & Accommodation",
+    hostelWing: wing,
+  });
+
+}
+
+else if (
+  category ===
+  "IT Services"
+) {
+
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "IT Services",
+  });
+
+}
+
+else if (
+  category ===
+  "Campus Facilities"
+) {
+
+  facultyList = await User.find({
+    role: "faculty",
+    expertise:
+      "Campus Facilities",
+  });
+
+}
+
+/* =========================
+   DIRECT ROUTING
+========================= */
+
+if (
+  category ===
+    "Safety & Security" ||
+  category ===
+    "Student Welfare" ||
+  category ===
+    "Library Services" ||
+  category ===
+    "Administration"
+) {
+
+  return res.status(200).json({
+    success: true,
+    mode: "direct-routing",
+    recommended:
+      facultyList[0] || null,
+    allStaff:
+      facultyList,
+  });
+
+}
+
+/* =========================
+   SIMILARITY ROUTING
+========================= */
+
+ const resolvedSimilar =
+  complaint.similarComplaints.find(
+    (c) =>
+      c.assignedTo &&
+      c.status === "resolved"
+  );
+
+if (resolvedSimilar) {
+
+  const faculty =
+    await User.findById(
+      resolvedSimilar.assignedTo
+    );
+
+  if (faculty) {
+
+    const isEligible =
+      facultyList.some(
+        (f) =>
+          f._id.toString() ===
+          faculty._id.toString()
+      );
+
+    if (isEligible) {
+
+      return res.status(200).json({
+        success: true,
+        mode: "similarity",
+        reason:
+          "Successfully resolved a similar complaint",
+        recommended: {
+          faculty,
+        },
+      });
 
     }
 
-};
+  }
 
+}
+  
+
+const activeSimilar =
+  complaint.similarComplaints.find(
+    (c) =>
+      c.assignedTo &&
+      c.status ===
+        "in-progress"
+  );
+
+if (activeSimilar) {
+
+  const faculty =
+    await User.findById(
+      activeSimilar.assignedTo
+    );
+
+  if (faculty) {
+
+    const isEligible =
+      facultyList.some(
+        (f) =>
+          f._id.toString() ===
+          faculty._id.toString()
+      );
+
+    if (isEligible) {
+
+      return res.status(200).json({
+        success: true,
+        mode: "similarity",
+        reason:
+          "Currently handling a similar complaint",
+        recommended: {
+          faculty,
+        },
+      });
+
+    }
+
+  }
+
+}
+
+
+/* =========================const
+   WORKLOAD FALLBACK
+========================= */
+
+const staffWithWorkload =
+  [];
+
+for (const faculty of facultyList) {
+
+  const workload =
+    await Complaint.countDocuments({
+      assignedTo:
+        faculty._id,
+      status: {
+        $ne: "resolved",
+      },
+    });
+
+  staffWithWorkload.push({
+    faculty,
+    workload,
+  });
+
+}
+
+staffWithWorkload.sort(
+  (a, b) =>
+    a.workload -
+    b.workload
+);
+
+return res.status(200).json({
+  success: true,
+  mode: "workload",
+  recommended:
+    staffWithWorkload[0] ||
+    null,
+  allStaff:
+    staffWithWorkload,
+});
+
+} catch (error) {
+
+console.log(error);
+
+return res.status(500).json({
+  success: false,
+  message:
+    "Server Error",
+});
+
+
+}
+
+};
 
     
            

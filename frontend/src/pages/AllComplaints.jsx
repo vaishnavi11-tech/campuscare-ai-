@@ -181,11 +181,17 @@ function AllComplaints() {
                   <div className="mt-5 flex flex-col gap-3">
                     {!complaint.assignedTo && rec && (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                        <p className="font-semibold text-green-700">⭐ Recommended Staff</p>
-                        <p className="font-medium">{rec.faculty?.name || rec.name}</p>
+<p className="font-semibold text-green-700">
+  {rec.mode === "direct-routing"
+    ? "⭐ Assigned Authority"
+    : "⭐ Recommended Staff"}
+</p>                        <p className="font-medium">{rec.faculty?.name || rec.name}</p>
                         {rec.reason && (
                           <p className="text-sm text-blue-600 mt-1">{rec.reason}</p>
                         )}
+       <p className="text-xs text-red-500">
+  Mode: {rec.mode || "NO MODE"}
+</p>
                         {rec.workload !== undefined && (
                           <p className="text-sm text-gray-500">Workload: {rec.workload}</p>
                         )}
@@ -200,9 +206,47 @@ function AllComplaints() {
                       <option value="">
                         {complaint.assignedTo ? "Assignment Locked" : "Select Staff"}
                       </option>
-                      {staffList
-                        .filter((s) => s.expertise === complaint.aiResult?.category)
-                        .map((staff) => (
+                     {staffList
+  .filter((s) => {
+
+    const category =
+      complaint.aiResult?.category;
+
+    // Academic Affairs
+    if (category === "Academic Affairs") {
+
+      return (
+        s.expertise === category &&
+        s.department ===
+          complaint.student?.department
+      );
+
+    }
+
+    // Hostel
+    if (
+      category ===
+      "Hostel & Accommodation"
+    ) {
+
+      const requiredWing =
+        complaint.student?.gender === "male"
+          ? "boys"
+          : "girls";
+
+      return (
+        s.expertise === category &&
+        s.hostelWing === requiredWing
+      );
+
+    }
+
+    return (
+      s.expertise === category
+    );
+
+  })
+  .map((staff) => (
                           <option key={staff._id} value={staff._id}>
                             {staff.name}
                           </option>

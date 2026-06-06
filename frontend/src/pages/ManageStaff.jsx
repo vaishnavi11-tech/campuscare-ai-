@@ -5,13 +5,14 @@ import Layout from "../components/Layout";
 function ManageStaff() {
   const [staff, setStaff] = useState([]);
 
- const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
   name: "",
   email: "",
   password: "",
   expertise: "",
   department: "",
-})
+  hostelWing: "",
+});
 
   useEffect(() => {
     fetchStaff();
@@ -52,12 +53,13 @@ function ManageStaff() {
         }
       );
 
-      setFormData({
+   setFormData({
   name: "",
   email: "",
   password: "",
   expertise: "",
   department: "",
+  hostelWing: "",
 });
 
       fetchStaff();
@@ -236,6 +238,36 @@ function ManageStaff() {
   </select>
 
 )}
+{formData.expertise ===
+  "Hostel & Accommodation" && (
+
+  <select
+    value={formData.hostelWing}
+    onChange={(e) =>
+      setFormData({
+        ...formData,
+        hostelWing: e.target.value,
+      })
+    }
+    className="border p-3 rounded-lg"
+    required
+  >
+
+    <option value="">
+      Select Hostel Wing
+    </option>
+
+    <option value="boys">
+      Boys Hostel
+    </option>
+
+    <option value="girls">
+      Girls Hostel
+    </option>
+
+  </select>
+
+)}
             <button
               type="submit"
               className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
@@ -258,7 +290,7 @@ function ManageStaff() {
 
                 <p>{member.email}</p>
 
-               <p className="text-sm text-gray-500">
+       <p className="text-sm text-gray-500">
   Expertise: {member.expertise}
 </p>
 
@@ -267,6 +299,15 @@ function ManageStaff() {
     Department: {member.department}
   </p>
 )}
+
+{member.hostelWing && (
+  <p className="text-sm text-gray-500">
+    Hostel Wing: {member.hostelWing}
+  </p>
+)}
+
+
+
               </div>
 
               <button

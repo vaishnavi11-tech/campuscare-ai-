@@ -48,6 +48,11 @@ subExpertise: {
   type: [String],
   default: [],
 },
+hostelWing: {
+  type: String,
+  enum: ["boys", "girls"],
+  default: null,
+},
     studentId: {
       type: String,
       default: null,

@@ -9,7 +9,9 @@ const getAllStaff = async (req, res) => {
   role: "faculty",
 })
 .select("-password")
-.select( "name email expertise subExpertise");
+.select(
+  "name email expertise department hostelWing"
+)
 
     res.status(200).json({
       success: true,
@@ -30,14 +32,14 @@ const getAllStaff = async (req, res) => {
 const createStaff = async (req, res) => {
 
   try {
-
-    const {
-      name,
-      email,
-      password,
-      expertise,
-      department,
-    } = req.body;
+const {
+  name,
+  email,
+  password,
+  expertise,
+  department,
+  hostelWing,
+} = req.body;
 
     const existingUser =
       await User.findOne({ email });
@@ -54,17 +56,23 @@ const createStaff = async (req, res) => {
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
-    const staff = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-      role: "faculty",
-      expertise,
-      department:
-        expertise === "Academic Affairs"
-          ? department
-          : null,
-    });
+   const staff = await User.create({
+  name,
+  email,
+  password: hashedPassword,
+  role: "faculty",
+  expertise,
+
+  department:
+    expertise === "Academic Affairs"
+      ? department
+      : null,
+
+  hostelWing:
+    expertise === "Hostel & Accommodation"
+      ? hostelWing
+      : null,
+});
 
     res.status(201).json({
       success: true,
