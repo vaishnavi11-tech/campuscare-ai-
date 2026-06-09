@@ -7,7 +7,14 @@ const {
     isFaculty,
     isStudent
 } = require("../middleware/roleMiddleware");
+const {
+  testEmbedding,
+} = require("../controllers/complaintController");
 router.post("/create", auth, isStudent, createComplaint);
+router.get(
+  "/test-embedding",
+  testEmbedding
+);
 router.get("/my", auth, isStudent, getMyComplaints);
 router.patch("/assign/:id",auth,isAdmin,assignComplaint);
 router.post( "/:id/note",auth, addNote);
@@ -20,5 +27,6 @@ router.get("/assigned", auth,isFaculty, getAssignedComplaints);
 router.get("/assigned-stats", auth, isFaculty, getAssignedStats);
 router.get( "/:id", auth,getComplaintById);
 router.get( "/recommend-staff/:complaintId", auth, isAdmin,  recommendStaff);
+
 module.exports = router;
 

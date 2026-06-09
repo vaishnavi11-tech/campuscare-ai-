@@ -1,10 +1,58 @@
 const Complaint = require("../models/Complaint");
 const User = require("../models/User");
-const { analyzeComplaint } = require("../services/aiService");
-const { checkEscalation,} = require( "../services/escalationService");
-const { findSimilarComplaints } =require("../services/similarityService");
-exports.createComplaint = async (req, res) => {
+
+const {
+  analyzeComplaint,
+} = require("../services/aiService");
+
+const {
+  checkEscalation,
+} = require("../services/escalationService");
+
+const {
+  findSimilarComplaints,
+} = require("../services/similarityService");
+
+const {
+  generateEmbedding,
+} = require("../services/embeddingService");
+
+exports.testEmbedding =
+  async (req, res) => {
+
+    try {
+
+      const vector =
+        await generateEmbedding(
+          "Fan not working in classroom"
+        );
+
+      const similar =
+        await findSimilarComplaints(
+          vector,
+          "Campus Facilities"
+        );
+
+      return res.json(similar);
+
+    } catch (error) {
+
+      console.error(error);
+
+      return res.status(500).json({
+        message:
+          error.message,
+      });
+
+    }
+
+  };
+
+
+
+   exports.createComplaint = async (req, res) => {
   try {
+
     const { title, description } = req.body;
 
     if (!title || !description) {
@@ -14,7 +62,6 @@ exports.createComplaint = async (req, res) => {
       });
     }
 
-    // Create complaint first
     const complaint = await Complaint.create({
       title,
       description,
@@ -22,59 +69,124 @@ exports.createComplaint = async (req, res) => {
     });
 
     try {
-      // Run AI Analysis
-      const result = await analyzeComplaint(
-        title,
-        description
-      );
+
+      const result =
+        await analyzeComplaint(
+          title,
+          description
+        );
 
       const cleanedResult = result
         .replace(/```json/g, "")
         .replace(/```/g, "")
         .trim();
 
-      const parsedResult = JSON.parse(cleanedResult);
-console.log("PARSED AI RESULT:", parsedResult);
-      // Store AI Result
- const similarComplaints =
-  await findSimilarComplaints(
-    parsedResult.summary,
-    parsedResult.category
-  );
+      const parsedResult =
+        JSON.parse(cleanedResult);
 
-complaint.aiResult = {
-  category: parsedResult.category,
-  subCategory: parsedResult.subCategory,
-  location: parsedResult.location,
-  priority: parsedResult.priority.toLowerCase(),
-  summary: parsedResult.summary,
-  suggestedResolution:
-    parsedResult.suggestedResolution,
-};
+      console.log(
+        "PARSED AI RESULT:",
+        parsedResult
+      );
 
-complaint.similarComplaints =
-  similarComplaints;
-complaint.category = parsedResult.category;
+      const embedding =
+        await generateEmbedding(
+          parsedResult.summary
+        );
+
+      console.log(
+        "Embedding Length:",
+        embedding.length
+      );
+
+      console.log(
+        "First Value:",
+        embedding[0]
+      );
+
+      // SAVE AI DATA FIRST
+      complaint.aiResult = {
+        category:
+          parsedResult.category,
+
+        subCategory:
+          parsedResult.subCategory,
+
+        location:
+          parsedResult.location,
+
+        priority:
+          parsedResult.priority.toLowerCase(),
+
+        summary:
+          parsedResult.summary,
+
+        suggestedResolution:
+          parsedResult.suggestedResolution,
+      };
+
+      complaint.embedding =
+        embedding;
+
+      complaint.category =
+        parsedResult.category;
+
+      console.log(
+        "Complaint Embedding Length:",
+        complaint.embedding.length
+      );
+
+      // IMPORTANT
       await complaint.save();
 
+      // SIMILARITY SEARCH SEPARATELY
+      try {
+
+        const similarComplaints =
+          await findSimilarComplaints(
+            embedding,
+            parsedResult.category
+          );
+
+        complaint.similarComplaints =
+          similarComplaints;
+
+        await complaint.save();
+
+      } catch (similarityError) {
+
+        console.log(
+          "Similarity Search Error:",
+          similarityError
+        );
+
+      }
+
     } catch (aiError) {
-      console.log("AI Analysis Error:", aiError);
-      // Complaint is still created even if AI fails
+
+      console.log(
+        "AI Analysis Error:",
+        aiError
+      );
+
     }
 
     return res.status(201).json({
       success: true,
-      message: "Complaint created successfully",
+      message:
+        "Complaint created successfully",
       complaint,
     });
 
   } catch (error) {
+
     console.log(error);
 
     return res.status(500).json({
       success: false,
       message: "Server error",
     });
+
   }
 };
 

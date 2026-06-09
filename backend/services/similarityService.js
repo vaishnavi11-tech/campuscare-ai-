@@ -1,69 +1,76 @@
 const Complaint = require("../models/Complaint");
-const { askGroq } = require("./aiService");
 
 const findSimilarComplaints = async (
-  currentSummary,
-  currentCategory
+  embedding,
+  category
 ) => {
 
-  const complaints =
-    await Complaint.find({
-      "aiResult.category":
-        currentCategory,
-    });
+  console.log(
+    "Type:",
+    typeof embedding
+  );
 
-  const similarIds = [];
+  console.log(
+    "Is Array:",
+    Array.isArray(embedding)
+  );
 
-  for (const complaint of complaints) {
+  console.log(
+    "Length:",
+    embedding.length
+  );
 
-    if (
-      !complaint.aiResult?.summary
-    ) {
-      continue;
-    }
+  console.log(
+    "First:",
+    embedding[0]
+  );
 
-    const prompt = `
-Compare these two complaint summaries.
+  // Convert everything to numbers
+  const cleanEmbedding =
+    embedding.map(Number);
 
-Summary 1:
-${currentSummary}
+  const results =
+    await Complaint.aggregate([
+      {
+        $vectorSearch: {
+          index:
+            "complaint_vector_index",
 
-Summary 2:
-${complaint.aiResult.summary}
+          path:
+            "embedding",
 
-Are they describing the same underlying issue?
+          queryVector:
+            cleanEmbedding,
 
-Answer ONLY:
-similar
-or
-not similar
-`;
+          numCandidates: 50,
 
-    const response =
-      await askGroq(prompt);
+          limit: 5,
 
-    if (
-      response
-        .toLowerCase()
-        .includes("similar")
-    ) {
+          filter: {
+            category:
+              category,
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          category: 1,
+          status: 1,
+          score: {
+            $meta:
+              "vectorSearchScore",
+          },
+        },
+      },
+    ]);
+    console.log(
+  "Similar Results:",
+  results
+);
 
-      similarIds.push(
-        complaint._id
-      );
-
-    }
-
-    if (
-      similarIds.length >= 3
-    ) {
-      break;
-    }
-
-  }
-
-  return similarIds;
-
+  return results;
 };
 
 module.exports = {

@@ -39,6 +39,7 @@ const {
   expertise,
   department,
   hostelWing,
+  subExpertise,
 } = req.body;
 
     const existingUser =
@@ -62,7 +63,7 @@ const {
   password: hashedPassword,
   role: "faculty",
   expertise,
-
+subExpertise,
   department:
     expertise === "Academic Affairs"
       ? department

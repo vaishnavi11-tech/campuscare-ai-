@@ -12,6 +12,7 @@ const [formData, setFormData] = useState({
   expertise: "",
   department: "",
   hostelWing: "",
+  subExpertise: [],
 });
 
   useEffect(() => {
@@ -53,15 +54,15 @@ const [formData, setFormData] = useState({
         }
       );
 
-   setFormData({
+  setFormData({
   name: "",
   email: "",
   password: "",
   expertise: "",
   department: "",
   hostelWing: "",
+  subExpertise: [],
 });
-
       fetchStaff();
     } catch (error) {
       console.log(error);
@@ -86,7 +87,48 @@ const [formData, setFormData] = useState({
       console.log(error);
     }
   };
+const SUB_EXPERTISE = {
+  "Academic Affairs": [
+    "Teaching Quality",
+    "Attendance",
+    "Examinations",
+    "Results",
+    "Timetable",
+    "Projects & Internships",
+    "Laboratory Issues",
+    "Certificates",
+  ],
 
+  "Hostel & Accommodation": [
+    "Room Allocation",
+    "Room Maintenance",
+    "Mess Food",
+    "Water Supply",
+    "Electricity",
+    "Cleanliness",
+    "Hostel Security",
+  ],
+
+  "Campus Facilities": [
+    "Classroom Infrastructure",
+    "Furniture",
+    "Electricity",
+    "Cleanliness",
+    "Drinking Water",
+    "Sports Facilities",
+    "Parking",
+    "Auditorium",
+  ],
+
+  "IT Services": [
+    "WiFi & Network",
+    "Student Portal",
+    "College Email",
+    "Software Access",
+    "Computer Lab",
+    "Smart Classroom",
+  ],
+};
   return (
     <Layout>
       <div className="max-w-6xl mx-auto p-8">
@@ -196,6 +238,68 @@ const [formData, setFormData] = useState({
                 Student Welfare
               </option>
             </select>
+            {SUB_EXPERTISE[formData.expertise] && (
+
+  <div className="md:col-span-2 border rounded-lg p-3">
+
+    <p className="font-medium mb-2">
+      Select Sub Expertise
+    </p>
+
+    <div className="grid grid-cols-2 gap-2">
+
+      {SUB_EXPERTISE[
+        formData.expertise
+      ].map((item) => (
+
+        <label
+          key={item}
+          className="flex items-center gap-2"
+        >
+
+          <input
+            type="checkbox"
+            checked={formData.subExpertise.includes(
+              item
+            )}
+            onChange={(e) => {
+
+              if (e.target.checked) {
+
+                setFormData({
+                  ...formData,
+                  subExpertise: [
+                    ...formData.subExpertise,
+                    item,
+                  ],
+                });
+
+              } else {
+
+                setFormData({
+                  ...formData,
+                  subExpertise:
+                    formData.subExpertise.filter(
+                      (x) => x !== item
+                    ),
+                });
+
+              }
+
+            }}
+          />
+
+          {item}
+
+        </label>
+
+      ))}
+
+    </div>
+
+  </div>
+
+)}
 {formData.expertise === "Academic Affairs" && (
 
   <select
@@ -293,7 +397,13 @@ const [formData, setFormData] = useState({
        <p className="text-sm text-gray-500">
   Expertise: {member.expertise}
 </p>
-
+{member.subExpertise?.length > 0 && (
+  <p className="text-sm text-gray-500">
+    Sub Expertise:
+    {" "}
+    {member.subExpertise.join(", ")}
+  </p>
+)}
 {member.department && (
   <p className="text-sm text-gray-500">
     Department: {member.department}
