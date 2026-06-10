@@ -37,10 +37,18 @@ const checkEscalation = async () => {
     if (priority === "low")
       limit = 7;
 
-    complaint.escalated =
+    const shouldEscalate =
       diffDays >= limit;
 
-    await complaint.save();
+    await Complaint.updateOne(
+      { _id: complaint._id },
+      {
+        $set: {
+          escalated:
+            shouldEscalate,
+        },
+      }
+    );
 
   }
 

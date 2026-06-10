@@ -36,6 +36,14 @@ const complaintSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    recommendedStaff: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},recommendationReason: {
+  type: String,
+  default: null,
+},
     similarComplaints: [
   {
     type: mongoose.Schema.Types.ObjectId,

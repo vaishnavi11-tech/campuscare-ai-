@@ -5,26 +5,8 @@ const findSimilarComplaints = async (
   category
 ) => {
 
-  console.log(
-    "Type:",
-    typeof embedding
-  );
-
-  console.log(
-    "Is Array:",
-    Array.isArray(embedding)
-  );
-
-  console.log(
-    "Length:",
-    embedding.length
-  );
-
-  console.log(
-    "First:",
-    embedding[0]
-  );
-
+ 
+ 
   // Convert everything to numbers
   const cleanEmbedding =
     embedding.map(Number);
