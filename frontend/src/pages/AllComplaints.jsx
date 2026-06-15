@@ -12,7 +12,6 @@ const authHeader = () => ({
 function AllComplaints() {
   const [complaints, setComplaints] = useState([]);
   const [staffList, setStaffList] = useState([]);
-  const [recommendations, setRecommendations] = useState({});
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [category, setCategory] = useState("");
@@ -21,21 +20,6 @@ function AllComplaints() {
   const [loading, setLoading] = useState(false);
   const [assignMessage, setAssignMessage] = useState("");
 
-  const fetchRecommendation = async (complaintId) => {
-    try {
-      const res = await API.get(
-        `/complaints/recommend-staff/${complaintId}`,
-        authHeader()
-      );
-      return {
-        ...res.data.recommended,
-        reason: res.data.reason,
-        mode: res.data.mode,
-      };
-    } catch {
-      return null;
-    }
-  };
 
   const fetchComplaints = useCallback(async () => {
     try {
@@ -48,15 +32,8 @@ function AllComplaints() {
       setTotalPages(res.data.totalPages);
 
       // Fetch all recommendations in parallel instead of sequentially
-      const entries = await Promise.all(
-        res.data.complaints
-          .filter((c) => c.aiResult?.category)
-          .map(async (c) => {
-            const rec = await fetchRecommendation(c._id);
-            return [c._id, rec];
-          })
-      );
-      setRecommendations(Object.fromEntries(entries));
+     
+      
     } catch (error) {
       console.error("Failed to fetch complaints:", error);
     } finally {
@@ -150,7 +127,6 @@ function AllComplaints() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {complaints.map((complaint) => {
-              const rec = recommendations[complaint._id];
               return (
                 <div key={complaint._id} className="bg-white rounded-xl shadow-md p-6">
                   <div className="flex justify-between items-start mb-4">
@@ -179,24 +155,26 @@ function AllComplaints() {
                   </div>
 
                   <div className="mt-5 flex flex-col gap-3">
-                    {!complaint.assignedTo && rec && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-<p className="font-semibold text-green-700">
-  {rec.mode === "direct-routing"
-    ? "⭐ Assigned Authority"
-    : "⭐ Recommended Staff"}
-</p>                        <p className="font-medium">{rec.faculty?.name || rec.name}</p>
-                        {rec.reason && (
-                          <p className="text-sm text-blue-600 mt-1">{rec.reason}</p>
-                        )}
-       <p className="text-xs text-red-500">
-  Mode: {rec.mode || "NO MODE"}
-</p>
-                        {rec.workload !== undefined && (
-                          <p className="text-sm text-gray-500">Workload: {rec.workload}</p>
-                        )}
-                      </div>
-                    )}
+                  {!complaint.assignedTo &&
+ complaint.recommendedStaff && (
+
+  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+
+    <p className="font-semibold text-green-700">
+      ⭐ Recommended Staff
+    </p>
+
+    <p className="font-medium">
+      {complaint.recommendedStaff.name}
+    </p>
+
+    <p className="text-sm text-blue-600 mt-1">
+      {complaint.recommendationReason}
+    </p>
+
+  </div>
+
+)}
 
                     <select
                       disabled={!!complaint.assignedTo}

@@ -41,6 +41,20 @@ async function recommendStaff(
       candidatePool,
       complaint.aiResult.subCategory
     );
+    console.log(
+  "SUBCATEGORY:",
+  complaint.aiResult.subCategory
+);
+
+console.log(
+  "SUB POOL:",
+  subExpertisePool.map(
+    (s) => ({
+      name: s.name,
+      subExpertise: s.subExpertise,
+    })
+  )
+);
 
   // STEP 3
   const searchPool =

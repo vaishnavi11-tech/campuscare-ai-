@@ -74,13 +74,21 @@ const getSubExpertisePool = (
   subCategory
 ) => {
 
-  return pool.filter(
+  console.log("SUBCATEGORY =", subCategory);
+
+  const matches = pool.filter(
     (staff) =>
       staff.subExpertise?.includes(
         subCategory
       )
   );
 
+  console.log(
+    "MATCHES =",
+    matches.map((s) => s.name)
+  );
+
+  return matches;
 };
 
 module.exports = {

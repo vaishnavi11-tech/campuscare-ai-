@@ -12,7 +12,9 @@ const {
 const {
   findSimilarComplaints,
 } = require("../services/similarityService");
-
+const {
+  recommendStaff,
+} = require("../services/recommendationService");
 const {
   generateEmbedding,
 } = require("../services/embeddingService");
@@ -152,6 +154,37 @@ exports.testEmbedding =
           similarComplaints;
 
         await complaint.save();
+        const User =
+  require("../models/User");
+
+const {
+  recommendStaff,
+} = require("../services/recommendationService");
+
+const student =
+  await User.findById(
+    complaint.student
+  );
+
+const recommendation =
+  await recommendStaff(
+    complaint,
+    student
+  );
+
+if (
+  recommendation.recommendation
+) {
+
+  complaint.recommendedStaff =
+    recommendation.recommendation._id;
+
+  complaint.recommendationReason =
+    recommendation.reason;
+
+  await complaint.save();
+
+}
 
       } catch (similarityError) {
 
@@ -347,10 +380,15 @@ if (req.query.search) {
   "student",
   "name email gender department"
 )
+.populate(
+  "recommendedStaff",
+  "name email expertise subExpertise"
+)
 .populate("assignedTo", "name email")
 .sort({ createdAt: -1 })
 .skip(skip)
 .limit(limit);
+
      const total = await Complaint.countDocuments(filter);
 
 return res.status(200).json({
