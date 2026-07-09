@@ -191,15 +191,17 @@ function AllComplaints() {
       complaint.aiResult?.category;
 
     // Academic Affairs
-    if (category === "Academic Affairs") {
+   if (category === "Academic Affairs") {
 
-      return (
-        s.expertise === category &&
-        s.department ===
-          complaint.student?.department
-      );
+  return (
+    s.expertise === category &&
+    s.department === complaint.student?.department &&
+    s.subExpertise?.includes(
+      complaint.aiResult?.subCategory
+    )
+  );
 
-    }
+}
 
     // Hostel
     if (

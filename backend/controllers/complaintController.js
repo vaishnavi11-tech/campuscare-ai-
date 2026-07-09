@@ -425,7 +425,7 @@ return res.status(200).json({
         if (!complaint) {
             return res.status(404).json({
                 success: false,
-                message: "Complaint not found"
+                message: "Complaint not found" 
             });
         }
 

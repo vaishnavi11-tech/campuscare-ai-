@@ -18,7 +18,21 @@ const getCandidatePool = async (
         department:
           student.department,
       });
+case "Safety & Security":
 
+  return await User.find({
+    role: "faculty",
+    expertise:
+      "Safety & Security",
+  });
+
+case "Student Welfare":
+
+  return await User.find({
+    role: "faculty",
+    expertise:
+      "Student Welfare",
+  });
     case "Hostel & Accommodation":
 
       return await User.find({
@@ -75,7 +89,7 @@ const getSubExpertisePool = (
 ) => {
 
   console.log("SUBCATEGORY =", subCategory);
-
+//optional chaining ?.= 
   const matches = pool.filter(
     (staff) =>
       staff.subExpertise?.includes(

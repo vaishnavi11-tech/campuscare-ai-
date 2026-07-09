@@ -95,7 +95,7 @@ Academic Affairs:
 - Results
 - Timetable
 - Projects & Internships
-- Laboratory Issues
+- Laboratory Management
 - Certificates
 
 IT Services:

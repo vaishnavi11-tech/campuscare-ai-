@@ -6,7 +6,11 @@ const {
 const {
   findSimilarComplaints,
 } = require("./similarityService");
-
+const {
+  rankByWorkload,
+} = require(
+  "./workloadService"
+);
 const {
   getResolverHistory,
 } = require("./resolverHistoryService");
@@ -34,6 +38,17 @@ async function recommendStaff(
     };
 
   }
+  // DIRECT AUTHORITY ROUTING
+
+if (
+  complaint.aiResult.category === "Safety & Security" ||
+  complaint.aiResult.category === "Student Welfare"
+) {
+  return {
+    recommendation: candidatePool[0] || null,
+    reason: "Direct authority routing",
+  };
+}
 
   // STEP 2
   const subExpertisePool =
@@ -89,29 +104,45 @@ console.log(
       (a, b) =>
         b.score - a.score
     );
+    console.log(
+  "SEARCH POOL:",
+  searchPool.map((s) => ({
+    name: s.name,
+    subExpertise: s.subExpertise,
+  }))
+);
+
+console.log(
+  "RANKED RESOLVERS:",
+  rankedResolvers.map((r) => ({
+    name: r.staff.name,
+    score: r.score,
+  }))
+);
   // STEP 7
-  for (const resolver of rankedResolvers) {
+ for (const resolver of rankedResolvers) {
 
-    const match =
-      searchPool.find(
-        (staff) =>
-          staff._id.toString() ===
-          resolver.staff._id.toString()
-      );
+  const match =
+    searchPool.find(
+      (staff) =>
+        staff._id.toString() ===
+        resolver.staff._id.toString()
+    );
 
-    if (match) {
+  if (match) {
 
-      return {
-        recommendation:
-          match,
+    return {
+      recommendation: match,
 
-        reason:
-          "Resolved similar complaints",
-      };
-
-    }
+      reason:
+        resolver.resolvedCount > 0
+          ? "Resolved similar complaints"
+          : "Handling similar complaints",
+    };
 
   }
+
+}
 
   // STEP 8
   if (
@@ -129,16 +160,19 @@ console.log(
   }
 
   // STEP 9
-  return {
-    recommendation:
-      candidatePool[0],
+ const rankedPool =
+  await rankByWorkload(
+    candidatePool
+  );
 
-    reason:
-      "Category pool match",
-  };
+return {
+  recommendation:
+    rankedPool[0],
 
-}
+  reason:
+    "Category pool match (lowest workload)",
+};
 
 module.exports = {
   recommendStaff,
-};
+}}

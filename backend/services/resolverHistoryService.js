@@ -25,6 +25,7 @@ const getResolverHistory = async (
     }
 
     const staffId =
+    //to string because id is key of js object and that can be only string
       complaint.assignedTo._id.toString();
 
     if (!resolverMap[staffId]) {
@@ -67,6 +68,7 @@ const getResolverHistory = async (
   }
 
   return Object.values(
+    //array are easyto loop on
     resolverMap
   );
 

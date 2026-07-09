@@ -5,15 +5,15 @@ import Layout from "../components/Layout";
 function ManageStaff() {
   const [staff, setStaff] = useState([]);
 
-const [formData, setFormData] = useState({
-  name: "",
-  email: "",
-  password: "",
-  expertise: "",
-  department: "",
-  hostelWing: "",
-  subExpertise: [],
-});
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    expertise: "",
+    department: "",
+    hostelWing: "",
+    subExpertise: [],
+  });
 
   useEffect(() => {
     fetchStaff();
@@ -54,15 +54,15 @@ const [formData, setFormData] = useState({
         }
       );
 
-  setFormData({
-  name: "",
-  email: "",
-  password: "",
-  expertise: "",
-  department: "",
-  hostelWing: "",
-  subExpertise: [],
-});
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        expertise: "",
+        department: "",
+        hostelWing: "",
+        subExpertise: [],
+      });
       fetchStaff();
     } catch (error) {
       console.log(error);
@@ -87,48 +87,48 @@ const [formData, setFormData] = useState({
       console.log(error);
     }
   };
-const SUB_EXPERTISE = {
-  "Academic Affairs": [
-    "Teaching Quality",
-    "Attendance",
-    "Examinations",
-    "Results",
-    "Timetable",
-    "Projects & Internships",
-    "Laboratory Issues",
-    "Certificates",
-  ],
+  const SUB_EXPERTISE = {
+    "Academic Affairs": [
+      "Teaching Quality",
+      "Attendance",
+      "Examinations",
+      "Results",
+      "Timetable",
+      "Projects & Internships",
+      "Laboratory Management",
+      "Certificates",
+    ],
 
-  "Hostel & Accommodation": [
-    "Room Allocation",
-    "Room Maintenance",
-    "Mess Food",
-    "Water Supply",
-    "Electricity",
-    "Cleanliness",
-    "Hostel Security",
-  ],
+    "Hostel & Accommodation": [
+      "Room Allocation",
+      "Room Maintenance",
+      "Mess Food",
+      "Water Supply",
+      "Electricity",
+      "Cleanliness",
+      "Hostel Security",
+    ],
 
-  "Campus Facilities": [
-    "Classroom Infrastructure",
-    "Furniture",
-    "Electricity",
-    "Cleanliness",
-    "Drinking Water",
-    "Sports Facilities",
-    "Parking",
-    "Auditorium",
-  ],
+    "Campus Facilities": [
+      "Classroom Infrastructure",
+      "Furniture",
+      "Electricity",
+      "Cleanliness",
+      "Drinking Water",
+      "Sports Facilities",
+      "Parking",
+      "Auditorium",
+    ],
 
-  "IT Services": [
-    "WiFi & Network",
-    "Student Portal",
-    "College Email",
-    "Software Access",
-    "Computer Lab",
-    "Smart Classroom",
-  ],
-};
+    "IT Services": [
+      "WiFi & Network",
+      "Student Portal",
+      "College Email",
+      "Software Access",
+      "Computer Lab",
+      "Smart Classroom",
+    ],
+  };
   return (
     <Layout>
       <div className="max-w-6xl mx-auto p-8">
@@ -240,138 +240,138 @@ const SUB_EXPERTISE = {
             </select>
             {SUB_EXPERTISE[formData.expertise] && (
 
-  <div className="md:col-span-2 border rounded-lg p-3">
+              <div className="md:col-span-2 border rounded-lg p-3">
 
-    <p className="font-medium mb-2">
-      Select Sub Expertise
-    </p>
+                <p className="font-medium mb-2">
+                  Select Sub Expertise
+                </p>
 
-    <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2">
 
-      {SUB_EXPERTISE[
-        formData.expertise
-      ].map((item) => (
+                  {SUB_EXPERTISE[
+                    formData.expertise
+                  ].map((item) => (
 
-        <label
-          key={item}
-          className="flex items-center gap-2"
-        >
+                    <label
+                      key={item}
+                      className="flex items-center gap-2"
+                    >
 
-          <input
-            type="checkbox"
-            checked={formData.subExpertise.includes(
-              item
+                      <input
+                        type="checkbox"
+                        checked={formData.subExpertise.includes(
+                          item
+                        )}
+                        onChange={(e) => {
+
+                          if (e.target.checked) {
+
+                            setFormData({
+                              ...formData,
+                              subExpertise: [
+                                ...formData.subExpertise,
+                                item,
+                              ],
+                            });
+
+                          } else {
+
+                            setFormData({
+                              ...formData,
+                              subExpertise:
+                                formData.subExpertise.filter(
+                                  (x) => x !== item
+                                ),
+                            });
+
+                          }
+
+                        }}
+                      />
+
+                      {item}
+
+                    </label>
+
+                  ))}
+
+                </div>
+
+              </div>
+
             )}
-            onChange={(e) => {
+            {formData.expertise === "Academic Affairs" && (
 
-              if (e.target.checked) {
+              <select
+                value={formData.department}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    department: e.target.value,
+                  })
+                }
+                className="border p-3 rounded-lg"
+                required
+              >
 
-                setFormData({
-                  ...formData,
-                  subExpertise: [
-                    ...formData.subExpertise,
-                    item,
-                  ],
-                });
+                <option value="">
+                  Select Department
+                </option>
 
-              } else {
+                <option value="CSE">CSE</option>
+                <option value="IT">IT</option>
+                <option value="ECE">ECE</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Civil">Civil</option>
+                <option value="Instrumentation">
+                  Instrumentation
+                </option>
+                <option value="Mechanical">
+                  Mechanical
+                </option>
+                <option value="Production">
+                  Production
+                </option>
+                <option value="Textile">
+                  Textile
+                </option>
+                <option value="Chemical">
+                  Chemical
+                </option>
 
-                setFormData({
-                  ...formData,
-                  subExpertise:
-                    formData.subExpertise.filter(
-                      (x) => x !== item
-                    ),
-                });
+              </select>
 
-              }
+            )}
+            {formData.expertise ===
+              "Hostel & Accommodation" && (
 
-            }}
-          />
+                <select
+                  value={formData.hostelWing}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      hostelWing: e.target.value,
+                    })
+                  }
+                  className="border p-3 rounded-lg"
+                  required
+                >
 
-          {item}
+                  <option value="">
+                    Select Hostel Wing
+                  </option>
 
-        </label>
+                  <option value="boys">
+                    Boys Hostel
+                  </option>
 
-      ))}
+                  <option value="girls">
+                    Girls Hostel
+                  </option>
 
-    </div>
+                </select>
 
-  </div>
-
-)}
-{formData.expertise === "Academic Affairs" && (
-
-  <select
-    value={formData.department}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        department: e.target.value,
-      })
-    }
-    className="border p-3 rounded-lg"
-    required
-  >
-
-    <option value="">
-      Select Department
-    </option>
-
-    <option value="CSE">CSE</option>
-    <option value="IT">IT</option>
-    <option value="ECE">ECE</option>
-    <option value="Electrical">Electrical</option>
-    <option value="Civil">Civil</option>
-    <option value="Instrumentation">
-      Instrumentation
-    </option>
-    <option value="Mechanical">
-      Mechanical
-    </option>
-    <option value="Production">
-      Production
-    </option>
-    <option value="Textile">
-      Textile
-    </option>
-    <option value="Chemical">
-      Chemical
-    </option>
-
-  </select>
-
-)}
-{formData.expertise ===
-  "Hostel & Accommodation" && (
-
-  <select
-    value={formData.hostelWing}
-    onChange={(e) =>
-      setFormData({
-        ...formData,
-        hostelWing: e.target.value,
-      })
-    }
-    className="border p-3 rounded-lg"
-    required
-  >
-
-    <option value="">
-      Select Hostel Wing
-    </option>
-
-    <option value="boys">
-      Boys Hostel
-    </option>
-
-    <option value="girls">
-      Girls Hostel
-    </option>
-
-  </select>
-
-)}
+              )}
             <button
               type="submit"
               className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
@@ -394,27 +394,27 @@ const SUB_EXPERTISE = {
 
                 <p>{member.email}</p>
 
-       <p className="text-sm text-gray-500">
-  Expertise: {member.expertise}
-</p>
-{member.subExpertise?.length > 0 && (
-  <p className="text-sm text-gray-500">
-    Sub Expertise:
-    {" "}
-    {member.subExpertise.join(", ")}
-  </p>
-)}
-{member.department && (
-  <p className="text-sm text-gray-500">
-    Department: {member.department}
-  </p>
-)}
+                <p className="text-sm text-gray-500">
+                  Expertise: {member.expertise}
+                </p>
+                {member.subExpertise?.length > 0 && (
+                  <p className="text-sm text-gray-500">
+                    Sub Expertise:
+                    {" "}
+                    {member.subExpertise.join(", ")}
+                  </p>
+                )}
+                {member.department && (
+                  <p className="text-sm text-gray-500">
+                    Department: {member.department}
+                  </p>
+                )}
 
-{member.hostelWing && (
-  <p className="text-sm text-gray-500">
-    Hostel Wing: {member.hostelWing}
-  </p>
-)}
+                {member.hostelWing && (
+                  <p className="text-sm text-gray-500">
+                    Hostel Wing: {member.hostelWing}
+                  </p>
+                )}
 
 
 

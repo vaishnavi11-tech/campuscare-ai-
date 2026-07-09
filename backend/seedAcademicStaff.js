@@ -17,7 +17,7 @@ const createCSEAcademicStaff = async () => {
       "Results",
       "Timetable",
       "Projects & Internships",
-      "Laboratory Issues",
+      "Laboratory Management",
       "Certificates",
     ];
 
