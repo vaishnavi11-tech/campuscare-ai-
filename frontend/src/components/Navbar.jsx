@@ -24,7 +24,7 @@ function Navbar() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">CampusCare</h1>
-            <p className="text-xs text-gray-500">AI Powered Grievance System</p>
+            <p className="text-xs text-gray-500">AI Powered Complaint Management System</p>
           </div>
         </Link>
 

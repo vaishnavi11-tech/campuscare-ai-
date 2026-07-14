@@ -1,13 +1,15 @@
 const Complaint = require("../models/Complaint");
 
+// =====================================
+// Similarity Search Service
+// =====================================
+
 const findSimilarComplaints = async (
   embedding,
   category
 ) => {
 
- 
- 
-  // Convert everything to numbers
+  // Ensure the embedding contains numeric values
   const cleanEmbedding =
     embedding.map(Number);
 
@@ -29,8 +31,7 @@ const findSimilarComplaints = async (
           limit: 5,
 
           filter: {
-            category:
-              category,
+            category,
           },
         },
       },
@@ -47,12 +48,9 @@ const findSimilarComplaints = async (
         },
       },
     ]);
-    console.log(
-  "Similar Results:",
-  results
-);
 
   return results;
+
 };
 
 module.exports = {

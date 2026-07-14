@@ -1,5 +1,9 @@
 const Complaint = require("../models/Complaint");
 
+// =====================================
+// Resolver History Service
+// =====================================
+
 const getResolverHistory = async (
   similarComplaints
 ) => {
@@ -24,8 +28,8 @@ const getResolverHistory = async (
       continue;
     }
 
+    // Object keys must be strings
     const staffId =
-    //to string because id is key of js object and that can be only string
       complaint.assignedTo._id.toString();
 
     if (!resolverMap[staffId]) {
@@ -33,9 +37,7 @@ const getResolverHistory = async (
       resolverMap[staffId] = {
         staff:
           complaint.assignedTo,
-
         resolvedCount: 0,
-
         activeCount: 0,
       };
 
@@ -67,8 +69,8 @@ const getResolverHistory = async (
 
   }
 
+  // Convert lookup object into an array
   return Object.values(
-    //array are easyto loop on
     resolverMap
   );
 

@@ -1,5 +1,9 @@
 const Complaint = require("../models/Complaint");
 
+// =====================================
+// Escalation Service
+// =====================================
+
 const checkEscalation = async () => {
 
   const complaints =
@@ -23,25 +27,30 @@ const checkEscalation = async () => {
       (1000 * 60 * 60 * 24);
 
     const priority =
-      complaint.aiResult?.priority
-        ?.toLowerCase();
+      complaint.aiResult?.priority?.toLowerCase();
 
+    // Escalation threshold (in days)
     let limit = 7;
 
-    if (priority === "high")
+    if (priority === "high") {
       limit = 1;
+    }
 
-    if (priority === "medium")
+    if (priority === "medium") {
       limit = 3;
+    }
 
-    if (priority === "low")
+    if (priority === "low") {
       limit = 7;
+    }
 
     const shouldEscalate =
       diffDays >= limit;
 
     await Complaint.updateOne(
-      { _id: complaint._id },
+      {
+        _id: complaint._id,
+      },
       {
         $set: {
           escalated:

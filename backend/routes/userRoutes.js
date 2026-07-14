@@ -1,20 +1,26 @@
 const express = require("express");
 
-const router = express.Router();
-
 const {
   getAllStaff,
   createStaff,
   deleteStaff,
   getStaffWorkload,
-  recommendStaff
+  recommendStaff,
 } = require("../controllers/userController");
 
-const { auth } = require("../middleware/auth");
+const {
+  auth,
+} = require("../middleware/auth");
 
 const {
   isAdmin,
 } = require("../middleware/roleMiddleware");
+
+const router = express.Router();
+
+// =====================================
+// Staff Management Routes
+// =====================================
 
 router.get(
   "/staff",
@@ -36,16 +42,23 @@ router.delete(
   isAdmin,
   deleteStaff
 );
+
+// =====================================
+// Recommendation Engine Routes
+// =====================================
+
 router.get(
   "/staff-workload/:department",
   auth,
   isAdmin,
   getStaffWorkload
 );
+
 router.get(
   "/recommend-staff/:category",
   auth,
   isAdmin,
   recommendStaff
 );
+
 module.exports = router;

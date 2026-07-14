@@ -1,5 +1,9 @@
 const User = require("../models/User");
 
+// =====================================
+// Build Candidate Pool
+// =====================================
+
 const getCandidatePool = async (
   complaint,
   student
@@ -18,21 +22,23 @@ const getCandidatePool = async (
         department:
           student.department,
       });
-case "Safety & Security":
 
-  return await User.find({
-    role: "faculty",
-    expertise:
-      "Safety & Security",
-  });
+    case "Safety & Security":
 
-case "Student Welfare":
+      return await User.find({
+        role: "faculty",
+        expertise:
+          "Safety & Security",
+      });
 
-  return await User.find({
-    role: "faculty",
-    expertise:
-      "Student Welfare",
-  });
+    case "Student Welfare":
+
+      return await User.find({
+        role: "faculty",
+        expertise:
+          "Student Welfare",
+      });
+
     case "Hostel & Accommodation":
 
       return await User.find({
@@ -40,7 +46,8 @@ case "Student Welfare":
         expertise:
           "Hostel & Accommodation",
         hostelWing:
-          student.gender === "female"
+          student.gender ===
+          "female"
             ? "girls"
             : "boys",
       });
@@ -81,15 +88,23 @@ case "Student Welfare":
 
       return [];
   }
+
 };
+
+// =====================================
+// Filter by Sub-Expertise
+// =====================================
 
 const getSubExpertisePool = (
   pool,
   subCategory
 ) => {
 
-  console.log("SUBCATEGORY =", subCategory);
-//optional chaining ?.= 
+  console.log(
+    "SUBCATEGORY:",
+    subCategory
+  );
+
   const matches = pool.filter(
     (staff) =>
       staff.subExpertise?.includes(
@@ -98,11 +113,14 @@ const getSubExpertisePool = (
   );
 
   console.log(
-    "MATCHES =",
-    matches.map((s) => s.name)
+    "MATCHES:",
+    matches.map(
+      (staff) => staff.name
+    )
   );
 
   return matches;
+
 };
 
 module.exports = {

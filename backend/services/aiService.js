@@ -1,11 +1,19 @@
 require("dotenv").config();
+
 const Groq = require("groq-sdk");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-async function analyzeComplaint(title, description) {
+// =====================================
+// AI Complaint Classification
+// =====================================
+
+async function analyzeComplaint(
+  title,
+  description
+) {
 
   const prompt = `
 Analyze this campus complaint.
@@ -196,11 +204,14 @@ Rules:
 5. suggestedResolution should be practical and concise.
 6. Do not return markdown.
 7. Do not return explanation outside JSON.
+8. Do NOT output <think>.
+9. Do NOT explain your reasoning.
+10. The FIRST character of your response MUST be {
 `;
 
   const response =
     await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: [
         {
           role: "user",
@@ -213,13 +224,18 @@ Rules:
     .choices[0]
     .message
     .content;
+
 }
+
+// =====================================
+// Generic AI Utility
+// =====================================
 
 async function askGroq(prompt) {
 
   const response =
     await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "openai/gpt-oss-120b",
       messages: [
         {
           role: "user",
@@ -232,6 +248,7 @@ async function askGroq(prompt) {
     .choices[0]
     .message
     .content;
+
 }
 
 module.exports = {

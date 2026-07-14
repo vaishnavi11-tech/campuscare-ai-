@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    // =====================================
+    // Basic Information
+    // =====================================
+
     name: {
       type: String,
       required: true,
@@ -20,9 +24,17 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["student", "faculty", "admin"],
+      enum: [
+        "student",
+        "faculty",
+        "admin",
+      ],
       default: "student",
     },
+
+    // =====================================
+    // Student Information
+    // =====================================
 
     department: {
       type: String,
@@ -31,7 +43,10 @@ const userSchema = new mongoose.Schema(
 
     gender: {
       type: String,
-      enum: ["male", "female"],
+      enum: [
+        "male",
+        "female",
+      ],
       default: null,
     },
 
@@ -40,21 +55,31 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+    studentId: {
+      type: String,
+      default: null,
+    },
+
+    // =====================================
+    // Faculty Information
+    // =====================================
+
     expertise: {
       type: String,
       default: null,
     },
-subExpertise: {
-  type: [String],
-  default: [],
-},
-hostelWing: {
-  type: String,
-  enum: ["boys", "girls"],
-  default: null,
-},
-    studentId: {
+
+    subExpertise: {
+      type: [String],
+      default: [],
+    },
+
+    hostelWing: {
       type: String,
+      enum: [
+        "boys",
+        "girls",
+      ],
       default: null,
     },
   },
@@ -63,4 +88,7 @@ hostelWing: {
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model(
+  "User",
+  userSchema
+);

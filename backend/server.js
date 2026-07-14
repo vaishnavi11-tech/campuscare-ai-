@@ -1,28 +1,76 @@
-const authRoutes = require("./routes/authRoutes");
-const cors = require("cors");
-const complaintRoutes=require("./routes/complaintRoutes");
+require("dotenv").config();
+
 const express = require("express");
-const dotenv = require("dotenv");
+const cors = require("cors");
+
 const connectDB = require("./config/db");
+
+const authRoutes = require("./routes/authRoutes");
+const complaintRoutes = require("./routes/complaintRoutes");
 const userRoutes = require("./routes/userRoutes");
 const aiRoutes = require("./routes/aiRoutes");
-dotenv.config();
+
+// =====================================
+// Database Connection
+// =====================================
+
 connectDB();
 
 const app = express();
+
+// =====================================
+// Global Middleware
+// =====================================
+
 app.use(cors());
+
 app.use(express.json());
-app.use("/api/auth", authRoutes);
-app.use("/api/complaints", complaintRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/ai", aiRoutes);
+
+// =====================================
+// API Routes
+// =====================================
+
+app.use(
+  "/api/auth",
+  authRoutes
+);
+
+app.use(
+  "/api/complaints",
+  complaintRoutes
+);
+
+app.use(
+  "/api/users",
+  userRoutes
+);
+
+app.use(
+  "/api/ai",
+  aiRoutes
+);
+
+// =====================================
+// Health Check
+// =====================================
 
 app.get("/", (req, res) => {
-    res.send("API Running");
+
+  res.send("API Running");
+
 });
 
-const PORT = process.env.PORT || 5000;
+// =====================================
+// Start Server
+// =====================================
+
+const PORT =
+  process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+
+  console.log(
+    `Server running on port ${PORT}`
+  );
+
 });

@@ -6,21 +6,28 @@ const {
 const {
   findSimilarComplaints,
 } = require("./similarityService");
+
 const {
   rankByWorkload,
-} = require(
-  "./workloadService"
-);
+} = require("./workloadService");
+
 const {
   getResolverHistory,
 } = require("./resolverHistoryService");
+
+// =====================================
+// Staff Recommendation Engine
+// =====================================
 
 async function recommendStaff(
   complaint,
   student
 ) {
 
-  // STEP 1
+  // =====================================
+  // Step 1: Build Candidate Pool
+  // =====================================
+
   const candidatePool =
     await getCandidatePool(
       complaint,
@@ -38,141 +45,146 @@ async function recommendStaff(
     };
 
   }
-  // DIRECT AUTHORITY ROUTING
 
-if (
-  complaint.aiResult.category === "Safety & Security" ||
-  complaint.aiResult.category === "Student Welfare"
-) {
-  return {
-    recommendation: candidatePool[0] || null,
-    reason: "Direct authority routing",
-  };
-}
+  // =====================================
+  // Step 2: Direct Authority Routing
+  // =====================================
 
-  // STEP 2
+  if (
+    complaint.aiResult.category ===
+      "Safety & Security" ||
+    complaint.aiResult.category ===
+      "Student Welfare"
+  ) {
+
+    return {
+      recommendation:
+        candidatePool[0] || null,
+      reason:
+        "Direct authority routing",
+    };
+
+  }
+
+  // =====================================
+  // Step 3: Filter by Sub-Expertise
+  // =====================================
+
   const subExpertisePool =
     getSubExpertisePool(
       candidatePool,
       complaint.aiResult.subCategory
     );
-    console.log(
-  "SUBCATEGORY:",
-  complaint.aiResult.subCategory
-);
 
-console.log(
-  "SUB POOL:",
-  subExpertisePool.map(
-    (s) => ({
-      name: s.name,
-      subExpertise: s.subExpertise,
-    })
-  )
-);
-
-  // STEP 3
   const searchPool =
     subExpertisePool.length > 0
       ? subExpertisePool
       : candidatePool;
 
-  // STEP 4
+  // =====================================
+  // Step 4: Retrieve Similar Complaints
+  // =====================================
+
   const similarComplaints =
     await findSimilarComplaints(
       complaint.embedding,
       complaint.aiResult.category
     );
 
-  // STEP 5
+  // =====================================
+  // Step 5: Resolver History
+  // =====================================
+
   const resolverHistory =
     await getResolverHistory(
       similarComplaints
     );
 
-  // STEP 6
- const rankedResolvers =
-  resolverHistory
-    .map((resolver) => ({
-      ...resolver,
-
-      score:
-        resolver.resolvedCount * 5 +
-        resolver.activeCount * 2,
-    }))
-    .sort(
-      (a, b) =>
-        b.score - a.score
-    );
-    console.log(
-  "SEARCH POOL:",
-  searchPool.map((s) => ({
-    name: s.name,
-    subExpertise: s.subExpertise,
-  }))
-);
-
-console.log(
-  "RANKED RESOLVERS:",
-  rankedResolvers.map((r) => ({
-    name: r.staff.name,
-    score: r.score,
-  }))
-);
-  // STEP 7
- for (const resolver of rankedResolvers) {
-
-  const match =
-    searchPool.find(
-      (staff) =>
-        staff._id.toString() ===
-        resolver.staff._id.toString()
+  const eligibleResolvers =
+    resolverHistory.filter(
+      (resolver) =>
+        searchPool.some(
+          (staff) =>
+            staff._id.toString() ===
+            resolver.staff._id.toString()
+        )
     );
 
-  if (match) {
+  // =====================================
+  // Step 6: Workload Ranking
+  // =====================================
 
-    return {
-      recommendation: match,
+  const workloadPool =
+    await rankByWorkload(
+      searchPool
+    );
 
-      reason:
-        resolver.resolvedCount > 0
-          ? "Resolved similar complaints"
-          : "Handling similar complaints",
-    };
+  const workloadMap =
+    new Map();
+
+  for (const staff of workloadPool) {
+
+    workloadMap.set(
+      staff._id.toString(),
+      staff.workload
+    );
 
   }
+
+  // =====================================
+  // Step 7: Final Recommendation Score
+  // =====================================
+
+  const finalRanking =
+    searchPool
+      .map((staff) => {
+
+        const resolver =
+          eligibleResolvers.find(
+            (history) =>
+              history.staff._id.toString() ===
+              staff._id.toString()
+          );
+
+        const resolvedCount =
+          resolver
+            ? resolver.resolvedCount
+            : 0;
+
+        const workload =
+          workloadMap.get(
+            staff._id.toString()
+          ) || 0;
+
+        return {
+          staff,
+          resolvedCount,
+          workload,
+
+          score:
+            resolvedCount * 5 -
+            workload * 2,
+        };
+
+      })
+      .sort(
+        (a, b) =>
+          b.score - a.score
+      );
+
+  return {
+    recommendation:
+      finalRanking[0].staff,
+
+    reason:
+      finalRanking[0]
+        .resolvedCount > 0
+        ? "Resolved similar complaints with balanced workload"
+        : "Category pool match (lowest workload)",
+  };
 
 }
 
-  // STEP 8
-  if (
-    subExpertisePool.length > 0
-  ) {
-
-    return {
-      recommendation:
-        subExpertisePool[0],
-
-      reason:
-        "Sub-expertise match",
-    };
-
-  }
-
-  // STEP 9
- const rankedPool =
-  await rankByWorkload(
-    candidatePool
-  );
-
-return {
-  recommendation:
-    rankedPool[0],
-
-  reason:
-    "Category pool match (lowest workload)",
-};
-
 module.exports = {
   recommendStaff,
-}}
+};

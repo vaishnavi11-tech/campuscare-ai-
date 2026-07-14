@@ -56,7 +56,7 @@ else {
         <h1 className="text-3xl font-bold text-center mb-6">
          🎓 CampusCare
 
-AI Powered Complaint Management
+Login
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">

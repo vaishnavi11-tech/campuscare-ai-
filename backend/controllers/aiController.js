@@ -1,28 +1,41 @@
 const { analyzeComplaint } = require("../services/aiService");
 
 const analyzeComplaintController = async (req, res) => {
-
   try {
-
     const { title, description } = req.body;
 
-    const result = await analyzeComplaint(title, description);
+    const result = await analyzeComplaint(
+      title,
+      description
+    );
 
     const cleanedResult = result
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
 
-    res.json(JSON.parse(cleanedResult));
+    const parsedResult =
+      JSON.parse(cleanedResult);
+
+    return res.status(200).json(
+      parsedResult
+    );
 
   } catch (error) {
 
-    console.log(error);
+    console.error(
+      "AI Analysis Error:",
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
       message: "AI analysis failed",
     });
+
   }
 };
 
-module.exports = { analyzeComplaintController };
+module.exports = {
+  analyzeComplaintController,
+};

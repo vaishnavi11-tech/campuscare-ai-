@@ -1,41 +1,73 @@
-const isAdmin = (req, res, next) => {
+// =====================================
+// Role Authorization Middleware
+// =====================================
 
-    if (req.user.role !== "admin") {
-        return res.status(403).json({
-            success: false,
-            message: "Access denied. Admin only."
-        });
-    }
+const isAdmin = (
+  req,
+  res,
+  next
+) => {
 
-    next();
+  if (req.user.role !== "admin") {
+
+    return res.status(403).json({
+      success: false,
+      message:
+        "Access denied. Admin only.",
+    });
+
+  }
+
+  return next();
+
 };
 
-const isFaculty = (req, res, next) => {
+const isFaculty = (
+  req,
+  res,
+  next
+) => {
 
-    if (req.user.role !== "faculty") {
-        return res.status(403).json({
-            success: false,
-            message: "Access denied. Faculty only."
-        });
-    }
+  if (
+    req.user.role !== "faculty"
+  ) {
 
-    next();
+    return res.status(403).json({
+      success: false,
+      message:
+        "Access denied. Faculty only.",
+    });
+
+  }
+
+  return next();
+
 };
 
-const isStudent = (req, res, next) => {
+const isStudent = (
+  req,
+  res,
+  next
+) => {
 
-    if (req.user.role !== "student") {
-        return res.status(403).json({
-            success: false,
-            message: "Access denied. Student only."
-        });
-    }
+  if (
+    req.user.role !== "student"
+  ) {
 
-    next();
+    return res.status(403).json({
+      success: false,
+      message:
+        "Access denied. Student only.",
+    });
+
+  }
+
+  return next();
+
 };
 
 module.exports = {
-    isAdmin,
-    isFaculty,
-    isStudent
+  isAdmin,
+  isFaculty,
+  isStudent,
 };

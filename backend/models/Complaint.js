@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const complaintSchema = new mongoose.Schema(
   {
-    // =========================
-    // Student Input
-    // =========================
+    // =====================================
+    // Student Submitted Complaint
+    // =====================================
 
     title: {
       type: String,
@@ -16,7 +16,7 @@ const complaintSchema = new mongoose.Schema(
       required: true,
     },
 
-    // Can be filled  by AI later
+    // Assigned by AI after complaint analysis
     category: {
       type: String,
       default: null,
@@ -24,20 +24,24 @@ const complaintSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "in-progress", "resolved"],
+      enum: [
+        "pending",
+        "in-progress",
+        "resolved",
+      ],
       default: "pending",
     },
 
-    // Complaint Owner
+    // Student who submitted the complaint
     student: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
 
-    // =========================
+    // =====================================
     // Complaint Assignment
-    // =========================
+    // =====================================
 
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
@@ -45,7 +49,8 @@ const complaintSchema = new mongoose.Schema(
       default: null,
     },
 
-    // AI Recommendation (Admin may override)
+    // AI-recommended staff member
+    // (Administrator may override)
     recommendedStaff: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -57,9 +62,9 @@ const complaintSchema = new mongoose.Schema(
       default: null,
     },
 
-    // =========================
-    // Related Complaints
-    // =========================
+    // =====================================
+    // Similar Complaints
+    // =====================================
 
     similarComplaints: [
       {
@@ -68,9 +73,9 @@ const complaintSchema = new mongoose.Schema(
       },
     ],
 
-    // =========================
-    // Complaint Timeline
-    // =========================
+    // =====================================
+    // Complaint Activity
+    // =====================================
 
     notes: [
       {
@@ -96,11 +101,11 @@ const complaintSchema = new mongoose.Schema(
       default: false,
     },
 
-    // =========================
-    // AI Support
-    // =========================
+    // =====================================
+    // AI Analysis
+    // =====================================
 
-    // Semantic embedding used for similarity search
+    // Vector embedding used for semantic similarity search
     embedding: {
       type: [Number],
       default: [],
@@ -120,18 +125,23 @@ const complaintSchema = new mongoose.Schema(
 
       priority: {
         type: String,
-        enum: ["low", "medium", "high", "critical"],
+        enum: [
+          "low",
+          "medium",
+          "high",
+          "critical",
+        ],
       },
 
       summary: String,
 
       suggestedResolution: String,
 
-      // Overall confidence of AI analysis
+      // Confidence score returned by the AI model
       confidence: Number,
 
-      // Verify whether this field is actually used.
-      // Remove it if redundant with similarComplaints.
+      // Future enhancement:
+      // Can store AI-selected similar cases if needed.
       similarCases: [
         {
           type: mongoose.Schema.Types.ObjectId,
@@ -145,4 +155,7 @@ const complaintSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Complaint", complaintSchema);
+module.exports = mongoose.model(
+  "Complaint",
+  complaintSchema
+);

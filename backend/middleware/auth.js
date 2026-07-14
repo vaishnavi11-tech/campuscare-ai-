@@ -1,32 +1,46 @@
 const jwt = require("jsonwebtoken");
 
-exports.auth = async (req,res,next)=>{
-    try{
+// =====================================
+// Authentication Middleware
+// =====================================
 
-       const token = req.header("Authorization")?.replace("Bearer ","");
+exports.auth = async (
+  req,
+  res,
+  next
+) => {
 
-        if(!token){
-            return res.status(401).json({
-                success:false,
-                message:"Token missing"
-            })
-        }
+  try {
 
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
+    const token = req
+      .header("Authorization")
+      ?.replace("Bearer ", "");
 
-        req.user = decoded;
+    if (!token) {
 
-        next();
-
-    }catch(error){
-
-        return res.status(401).json({
-            success:false,
-            message:"Invalid token"
-        })
+      return res.status(401).json({
+        success: false,
+        message: "Token missing",
+      });
 
     }
-}
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    req.user = decoded;
+
+    return next();
+
+  } catch (error) {
+
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+
+  }
+
+};
