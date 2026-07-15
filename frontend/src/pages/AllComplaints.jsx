@@ -20,7 +20,6 @@ function AllComplaints() {
   const [loading, setLoading] = useState(false);
   const [assignMessage, setAssignMessage] = useState("");
 
-
   const fetchComplaints = useCallback(async () => {
     try {
       setLoading(true);
@@ -30,10 +29,6 @@ function AllComplaints() {
       );
       setComplaints(res.data.complaints);
       setTotalPages(res.data.totalPages);
-
-      // Fetch all recommendations in parallel instead of sequentially
-     
-      
     } catch (error) {
       console.error("Failed to fetch complaints:", error);
     } finally {
@@ -71,6 +66,29 @@ function AllComplaints() {
     } catch (error) {
       console.error("Failed to assign complaint:", error);
     }
+  };
+
+  const getEligibleStaff = (complaint) => {
+    return staffList.filter((s) => {
+      const complaintCategory = complaint.aiResult?.category;
+
+      if (complaintCategory === "Academic Affairs") {
+        return (
+          s.expertise === complaintCategory &&
+          s.department === complaint.student?.department &&
+          s.subExpertise?.includes(complaint.aiResult?.subCategory)
+        );
+      }
+
+      if (complaintCategory === "Hostel & Accommodation") {
+        const requiredWing =
+          complaint.student?.gender === "male" ? "boys" : "girls";
+
+        return s.expertise === complaintCategory && s.hostelWing === requiredWing;
+      }
+
+      return s.expertise === complaintCategory;
+    });
   };
 
   return (
@@ -126,123 +144,80 @@ function AllComplaints() {
           <p className="text-gray-500 text-center py-10">No complaints found.</p>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {complaints.map((complaint) => {
-              return (
-                <div key={complaint._id} className="bg-white rounded-xl shadow-md p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-xl font-semibold">{complaint.title}</h2>
-                      {complaint.escalated && (
-                        <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
-                          🚨 Escalated
-                        </span>
-                      )}
-                    </div>
-                    <StatusBadge status={complaint.status} />
+            {complaints.map((complaint) => (
+              <div key={complaint._id} className="bg-white rounded-xl shadow-md p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-semibold">{complaint.title}</h2>
+                    {complaint.escalated && (
+                      <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold">
+                        🚨 Escalated
+                      </span>
+                    )}
                   </div>
-
-                  <div className="space-y-3">
-                    <p><span className="font-semibold">Student:</span> {complaint.student?.name}</p>
-                    <p><span className="font-semibold">Category:</span> {complaint.aiResult?.category || "N/A"}</p>
-                    <p className="mt-2">
-  <span className="font-semibold">
-    Sub Category:
-  </span>{" "}
-  {complaint.aiResult?.subCategory || "N/A"}
-</p>
-                    <p><span className="font-semibold">Priority:</span> {complaint.aiResult?.priority || "N/A"}</p>
-                    <p><span className="font-semibold">Assigned Staff:</span> {complaint.assignedTo?.name || "Not Assigned"}</p>
-                  </div>
-
-                  <div className="mt-5 flex flex-col gap-3">
-                  {!complaint.assignedTo &&
- complaint.recommendedStaff && (
-
-  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-
-    <p className="font-semibold text-green-700">
-      ⭐ Recommended Staff
-    </p>
-
-    <p className="font-medium">
-      {complaint.recommendedStaff.name}
-    </p>
-
-    <p className="text-sm text-blue-600 mt-1">
-      {complaint.recommendationReason}
-    </p>
-
-  </div>
-
-)}
-
-                    <select
-                      disabled={!!complaint.assignedTo}
-                      onChange={(e) => assignComplaint(complaint._id, e.target.value)}
-                      className={`border p-3 rounded ${complaint.assignedTo ? "bg-gray-100 cursor-not-allowed" : ""}`}
-                    >
-                      <option value="">
-                        {complaint.assignedTo ? "Assignment Locked" : "Select Staff"}
-                      </option>
-                     {staffList
-  .filter((s) => {
-
-    const category =
-      complaint.aiResult?.category;
-
-    // Academic Affairs
-   if (category === "Academic Affairs") {
-
-  return (
-    s.expertise === category &&
-    s.department === complaint.student?.department &&
-    s.subExpertise?.includes(
-      complaint.aiResult?.subCategory
-    )
-  );
-
-}
-
-    // Hostel
-    if (
-      category ===
-      "Hostel & Accommodation"
-    ) {
-
-      const requiredWing =
-        complaint.student?.gender === "male"
-          ? "boys"
-          : "girls";
-
-      return (
-        s.expertise === category &&
-        s.hostelWing === requiredWing
-      );
-
-    }
-
-    return (
-      s.expertise === category
-    );
-
-  })
-  .map((staff) => (
-                          <option key={staff._id} value={staff._id}>
-                            {staff.name}
-                          </option>
-                        ))}
-                    </select>
-
-                    <Link
-                      to={`/complaints/${complaint._id}`}
-                      className="bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700"
-                    >
-                      View Details
-                    </Link>
-                  </div>
+                  <StatusBadge status={complaint.status} />
                 </div>
-              );
-            })}
+
+                <div className="space-y-3">
+                  <p>
+                    <span className="font-semibold">Student:</span>{" "}
+                    {complaint.student?.name}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Category:</span>{" "}
+                    {complaint.aiResult?.category || "N/A"}
+                  </p>
+                  <p className="mt-2">
+                    <span className="font-semibold">Sub Category:</span>{" "}
+                    {complaint.aiResult?.subCategory || "N/A"}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Priority:</span>{" "}
+                    {complaint.aiResult?.priority || "N/A"}
+                  </p>
+                  <p>
+                    <span className="font-semibold">Assigned Staff:</span>{" "}
+                    {complaint.assignedTo?.name || "Not Assigned"}
+                  </p>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3">
+                  {!complaint.assignedTo && complaint.recommendedStaff && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                      <p className="font-semibold text-green-700">⭐ Recommended Staff</p>
+                      <p className="font-medium">{complaint.recommendedStaff.name}</p>
+                      <p className="text-sm text-blue-600 mt-1">
+                        {complaint.recommendationReason}
+                      </p>
+                    </div>
+                  )}
+
+                  <select
+                    disabled={!!complaint.assignedTo}
+                    onChange={(e) => assignComplaint(complaint._id, e.target.value)}
+                    className={`border p-3 rounded ${
+                      complaint.assignedTo ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    <option value="">
+                      {complaint.assignedTo ? "Assignment Locked" : "Select Staff"}
+                    </option>
+                    {getEligibleStaff(complaint).map((staff) => (
+                      <option key={staff._id} value={staff._id}>
+                        {staff.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <Link
+                    to={`/complaints/${complaint._id}`}
+                    className="bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -255,7 +230,9 @@ function AllComplaints() {
           >
             Previous
           </button>
-          <span>Page {page} of {totalPages}</span>
+          <span>
+            Page {page} of {totalPages}
+          </span>
           <button
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}

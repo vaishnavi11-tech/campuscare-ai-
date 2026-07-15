@@ -11,54 +11,56 @@ import AllComplaints from "./pages/AllComplaints";
 import Register from "./pages/Register";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import ManageStaff from "./pages/ManageStaff";
-function App() {
 
+function App() {
   return (
     <BrowserRouter>
-
       <Routes>
-      <Route
-  path="/manage-staff"
-  element={<ManageStaff />}
-/>
-      <Route
-  path="/my-complaints"
-  element={
-    <ProtectedRoute>
-      <MyComplaints />
-    </ProtectedRoute>
-  }
-/>
-<Route path="/complaints" element={<AllComplaints />} />
-<Route
-  path="/complaints/:id"
-  element={
-    <ProtectedRoute>
-      <ComplaintDetails />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/admin-dashboard"
-  element={
-    <ProtectedRoute>
-      <AdminDashboard />
-    </ProtectedRoute>
-  }
-/>
-<Route
-  path="/faculty-dashboard"
-  element={
-    <ProtectedRoute>
-      <FacultyDashboard />
-    </ProtectedRoute>
-  }
-/>
-        <Route path="/" element={<Home />} />
+        <Route path="/manage-staff" element={<ManageStaff />} />
 
-     <Route path="/login" element={<Login />} />
-<Route path="/register" element={<Register />} />
-    <Route
+        <Route
+          path="/my-complaints"
+          element={
+            <ProtectedRoute>
+              <MyComplaints />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/complaints" element={<AllComplaints />} />
+
+        <Route
+          path="/complaints/:id"
+          element={
+            <ProtectedRoute>
+              <ComplaintDetails />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/faculty-dashboard"
+          element={
+            <ProtectedRoute>
+              <FacultyDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
@@ -66,16 +68,16 @@ function App() {
             </ProtectedRoute>
           }
         />
-<Route
-  path="/create-complaint"
-  element={
-    <ProtectedRoute>
-      <CreateComplaint />
-    </ProtectedRoute>
-  }
-/>
-      </Routes>
 
+        <Route
+          path="/create-complaint"
+          element={
+            <ProtectedRoute>
+              <CreateComplaint />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   );
 }

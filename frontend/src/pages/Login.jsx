@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 
 function Login() {
-
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -21,50 +20,36 @@ function Login() {
     setLoading(true);
 
     try {
-
       const res = await API.post("/auth/login", formData);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
       localStorage.setItem("name", res.data.name);
-if (res.data.role === "admin") {
-  navigate("/admin-dashboard");
-}
-else if (res.data.role === "faculty") {
-  navigate("/faculty-dashboard");
-}
-else {
-  navigate("/dashboard");
-}
 
+      if (res.data.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (res.data.role === "faculty") {
+        navigate("/faculty-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
-
       setError("Invalid email or password");
-
     } finally {
-
       setLoading(false);
-
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-
         <h1 className="text-3xl font-bold text-center mb-6">
-         🎓 CampusCare
-
-Login
+          🎓 CampusCare Login
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-
           <div>
-            <label className="block mb-1 font-medium">
-              Email
-            </label>
+            <label className="block mb-1 font-medium">Email</label>
 
             <input
               type="email"
@@ -82,9 +67,7 @@ Login
           </div>
 
           <div>
-            <label className="block mb-1 font-medium">
-              Password
-            </label>
+            <label className="block mb-1 font-medium">Password</label>
 
             <input
               type="password"
@@ -101,11 +84,7 @@ Login
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <button
             type="submit"
@@ -114,19 +93,18 @@ Login
           >
             {loading ? "Logging in..." : "Login"}
           </button>
-<p className="text-center mt-4 text-sm">
-  Don't have an account?{" "}
-  <span
-    onClick={() => navigate("/register")}
-    className="text-blue-600 cursor-pointer hover:underline"
-  >
-    Register
-  </span>
-</p>
+
+          <p className="text-center mt-4 text-sm">
+            Don't have an account?{" "}
+            <span
+              onClick={() => navigate("/register")}
+              className="text-blue-600 cursor-pointer hover:underline"
+            >
+              Register
+            </span>
+          </p>
         </form>
-
       </div>
-
     </div>
   );
 }

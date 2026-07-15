@@ -64,8 +64,12 @@ function ComplaintDetails() {
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">Student Information</h2>
             <div className="space-y-3">
-              <p><span className="font-semibold">Name:</span> {complaint.student?.name}</p>
-              <p><span className="font-semibold">Email:</span> {complaint.student?.email}</p>
+              <p>
+                <span className="font-semibold">Name:</span> {complaint.student?.name}
+              </p>
+              <p>
+                <span className="font-semibold">Email:</span> {complaint.student?.email}
+              </p>
             </div>
           </div>
         )}
@@ -75,9 +79,18 @@ function ComplaintDetails() {
           <div className="bg-white rounded-xl shadow p-6 mb-6">
             <h2 className="text-2xl font-semibold mb-4">AI Insights</h2>
             <div className="space-y-3">
-              <p><span className="font-semibold">Category:</span> {complaint.aiResult?.category || "N/A"}</p>
-              <p><span className="font-semibold">Priority:</span> {complaint.aiResult?.priority || "N/A"}</p>
-              <p><span className="font-semibold">Suggested Resolution:</span> {complaint.aiResult?.suggestedResolution || "N/A"}</p>
+              <p>
+                <span className="font-semibold">Category:</span>{" "}
+                {complaint.aiResult?.category || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Priority:</span>{" "}
+                {complaint.aiResult?.priority || "N/A"}
+              </p>
+              <p>
+                <span className="font-semibold">Suggested Resolution:</span>{" "}
+                {complaint.aiResult?.suggestedResolution || "N/A"}
+              </p>
             </div>
           </div>
         )}
@@ -86,15 +99,28 @@ function ComplaintDetails() {
         <div className="bg-white rounded-xl shadow p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4">Resolution Workflow</h2>
           <div className="space-y-3">
-            <p><span className="font-semibold">Category:</span> {complaint.aiResult?.category || "N/A"}</p>
             <p>
-  <span className="font-semibold">Sub Category:</span>{complaint.aiResult?.subCategory || "N/A"}</p>
-            <p><span className="font-semibold">Status:</span> {complaint.status}</p>
+              <span className="font-semibold">Category:</span>{" "}
+              {complaint.aiResult?.category || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Sub Category:</span>{" "}
+              {complaint.aiResult?.subCategory || "N/A"}
+            </p>
+            <p>
+              <span className="font-semibold">Status:</span> {complaint.status}
+            </p>
             {complaint.escalated && (
               <p className="text-red-600 font-semibold">🚨 Escalated</p>
             )}
-            <p><span className="font-semibold">Assigned Staff:</span> {complaint.assignedTo?.name || "Not Assigned"}</p>
-            <p><span className="font-semibold">Created:</span> {new Date(complaint.createdAt).toLocaleDateString()}</p>
+            <p>
+              <span className="font-semibold">Assigned Staff:</span>{" "}
+              {complaint.assignedTo?.name || "Not Assigned"}
+            </p>
+            <p>
+              <span className="font-semibold">Created:</span>{" "}
+              {new Date(complaint.createdAt).toLocaleDateString()}
+            </p>
           </div>
         </div>
 
@@ -102,46 +128,62 @@ function ComplaintDetails() {
         <div className="bg-white rounded-xl shadow p-6 mt-6">
           <h2 className="text-2xl font-semibold mb-6">Complaint Timeline</h2>
           <div className="space-y-6">
-
             <div className="flex gap-4">
-              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">🟢</div>
+              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                🟢
+              </div>
               <div>
                 <p className="font-semibold">Complaint Created</p>
-                <p className="text-gray-500 text-sm">{new Date(complaint.createdAt).toLocaleString()}</p>
+                <p className="text-gray-500 text-sm">
+                  {new Date(complaint.createdAt).toLocaleString()}
+                </p>
               </div>
             </div>
 
             {complaint.assignedTo && (
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">👨‍💼</div>
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  👨‍💼
+                </div>
                 <div>
-                  <p className="font-semibold">Assigned to {complaint.assignedTo.name}</p>
-                  <p className="text-gray-500 text-sm">Complaint assigned for resolution</p>
+                  <p className="font-semibold">
+                    Assigned to {complaint.assignedTo.name}
+                  </p>
+                  <p className="text-gray-500 text-sm">
+                    Complaint assigned for resolution
+                  </p>
                 </div>
               </div>
             )}
 
             {complaint.notes?.map((note) => (
               <div key={note._id || note.text} className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">📝</div>
+                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                  📝
+                </div>
                 <div>
                   <p className="font-semibold">Faculty Update</p>
                   <p className="text-gray-700">{note.text}</p>
-                  <p className="text-gray-500 text-sm">{new Date(note.createdAt).toLocaleString()}</p>
+                  <p className="text-gray-500 text-sm">
+                    {new Date(note.createdAt).toLocaleString()}
+                  </p>
                 </div>
               </div>
             ))}
 
             {complaint.status === "resolved" && (
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">✅</div>
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  ✅
+                </div>
                 <div>
                   <p className="font-semibold">Complaint Resolved</p>
-                  <p className="text-gray-500 text-sm">Issue has been marked as resolved</p>
+                  <p className="text-gray-500 text-sm">
+                    Issue has been marked as resolved
+                  </p>
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>

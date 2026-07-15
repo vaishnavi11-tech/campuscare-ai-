@@ -56,9 +56,7 @@ function CreateComplaint() {
               />
             </div>
 
-            {error && (
-              <p className="text-red-600 text-sm">{error}</p>
-            )}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
 
             <button
               type="submit"
@@ -75,9 +73,12 @@ function CreateComplaint() {
                 Complaint submitted successfully
               </div>
               <h2 className="text-2xl font-bold mb-4">AI Analysis</h2>
-              <p className="mb-2"><strong>Category:</strong> {aiResult.category}</p>
-              <p className="mb-2"><strong>Priority:</strong> {aiResult.priority}</p>
-             
+              <p className="mb-2">
+                <strong>Category:</strong> {aiResult.category}
+              </p>
+              <p className="mb-2">
+                <strong>Priority:</strong> {aiResult.priority}
+              </p>
             </div>
           )}
         </div>
