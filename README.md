@@ -1,11 +1,11 @@
-![MERN](https://img.shields.io/badge/Stack-MERN-61DAFB?style=for-the-badge&logo=react&logoColor=white)
-![Cohere](https://img.shields.io/badge/Embeddings-Cohere-39594B?style=for-the-badge&logoColor=white)
-![Groq](https://img.shields.io/badge/LLM-Groq-F55036?style=for-the-badge&logoColor=white)
+![MERN](https://img.shields.io/badge/Stack-MERN-61DAFB?style=for-the-badge&logo=react&logoColor=white) &nbsp;
+![Cohere](https://img.shields.io/badge/Embeddings-Cohere-39594B?style=for-the-badge&logoColor=white) &nbsp;
+![Groq](https://img.shields.io/badge/LLM-Groq-F55036?style=for-the-badge&logoColor=white) &nbsp;
 ![JWT](https://img.shields.io/badge/Auth-JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
 # 🎓 CampusCare — AI Complaint Routing System
 
-**A full-stack, role-based complaint management system that reads a student's complaint, understands what it's actually about, and routes it to the right staff member automatically.**
+**A full-stack, role-based complaint management system that reads a student's complaint, understands what it's actually about, and recommends the right staff member for an admin to assign.**
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Architecture](#-architecture) • [Security](#-security) • [Roadmap](#-roadmap)
 
@@ -20,7 +20,7 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 
 - **It understands the complaint, not just keywords.** Every complaint is embedded with Cohere's `embed-english-v3.0` model and matched against known categories using MongoDB Atlas `$vectorSearch`.
 - **It escalates to an LLM when unsure.** Low-confidence matches get classified by a Groq-hosted model across 8 domains instead of falling into a generic bucket.
-- **It recommends who should handle it.** A seven-step recommendation engine scores staff by authority, sub-expertise, similar-complaint history, resolver history, and current workload — not round-robin assignment.
+- **It recommends who should handle it — the admin decides.** A seven-step recommendation engine scores staff by authority, sub-expertise, similar-complaint history, resolver history, and current workload, and surfaces the best match. The admin reviews the suggestion and makes the final assignment — it's not automatic or round-robin.
 - **It's role-aware end to end.** Students, faculty, and admins each see only what's relevant to them, enforced via JWT + role middleware.
 
 ---
@@ -40,7 +40,7 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 ![Faculty Dashboard](./screenshots/faculty_dashboard.png)
 
 **Full complaint lifecycle, tracked end to end**
-![Complaint Timeline](./screenshots/complaint_Timeline.png)
+![Complaint Timeline](./screenshots/complaint_timeline.png)
 
 ---
 
@@ -50,7 +50,7 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 |---|---|
 | 🤖 **Semantic Routing** | Cohere `embed-english-v3.0` embeddings + MongoDB Atlas `$vectorSearch` match complaints to categories without an LLM call in the common case |
 | 🧭 **LLM Fallback Classification** | Ambiguous complaints get classified across 8 domains via a Groq-hosted model with structured JSON output |
-| 👥 **Staff Recommendation Engine** | Seven-step scoring chain: candidate pool → direct authority routing → sub-expertise filter → similar-complaint retrieval → resolver history → workload ranking → final score |
+| 👥 **Staff Recommendation Engine** | Seven-step scoring chain surfaces the best-fit staff member for the admin to review and assign: candidate pool → direct authority routing → sub-expertise filter → similar-complaint retrieval → resolver history → workload ranking → final score |
 | 📊 **Workload Awareness** | Admins can view staff workload by department before assigning |
 | 🗂 **Full Complaint Lifecycle** | Create → assign → status update → notes → resolution, tracked per complaint |
 | 🔐 **Role-Based Access** | Separate permissions for students, faculty, and admins via JWT + role middleware |
