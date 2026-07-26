@@ -9,7 +9,7 @@
 
 [Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Architecture](#-architecture) • [Security](#-security) • [Roadmap](#-roadmap)
 
-🔗 **Live:** Frontend on Vercel · Backend on Render
+🔗 **Live:** [Frontend on Vercel](https://campuscare-ai-alpha.vercel.app/) · [Backend on Render](https://campuscareai-backend.onrender.com)
 📦 **Repo:** [github.com/vaishnavi11-tech/campuscare-ai-](https://github.com/vaishnavi11-tech/campuscare-ai-)
 
 ---
@@ -40,7 +40,7 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 ![Faculty Dashboard](./screenshots/faculty_dashboard.png)
 
 **Full complaint lifecycle, tracked end to end**
-![Complaint Timeline](./screenshots/complaint_timeline.png)
+![Complaint Timeline](./screenshots/complaint_Timeline.png)
 
 ---
 
