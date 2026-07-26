@@ -18,10 +18,29 @@
 
 CampusCare is a role-based (student / faculty / admin) complaint portal where routing isn't manual. What makes it different from a standard complaint tracker:
 
-- **It understands the complaint, not just keywords.** Every complaint is embedded with Cohere and compared against known categories using cosine similarity.
+- **It understands the complaint, not just keywords.** Every complaint is embedded with Cohere's `embed-english-v3.0` model and matched against known categories using MongoDB Atlas `$vectorSearch`.
 - **It escalates to an LLM when unsure.** Low-confidence matches get classified by a Groq-hosted model across 8 domains instead of falling into a generic bucket.
-- **It recommends who should handle it.** A five-step matching chain scores staff by department, workload, and category fit — not just round-robin assignment.
+- **It recommends who should handle it.** A seven-step recommendation engine scores staff by authority, sub-expertise, similar-complaint history, resolver history, and current workload — not round-robin assignment.
 - **It's role-aware end to end.** Students, faculty, and admins each see only what's relevant to them, enforced via JWT + role middleware.
+
+---
+
+## 📸 Screenshots
+
+**Landing page**
+![Home](./screenshots/home.png)
+
+**Student submits a complaint → AI analysis runs instantly**
+![Create Complaint with AI Analysis](./screenshots/create_complaint_ai.png)
+
+**Admin view — recommendation engine suggests the best-fit staff member**
+![Admin Recommended Staff](./screenshots/admin_recommend_staff.png)
+
+**Faculty dashboard — AI-suggested resolution guides the response**
+![Faculty Dashboard](./screenshots/faculty_dashboard.png)
+
+**Full complaint lifecycle, tracked end to end**
+![Complaint Timeline](./screenshots/complaint_timeline.png)
 
 ---
 
@@ -29,9 +48,9 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 
 | Feature | Description |
 |---|---|
-| 🤖 **Semantic Routing** | Cohere embeddings + cosine similarity match complaints to categories without an LLM call in the common case |
-| 🧭 **LLM Fallback Classification** | Ambiguous complaints get classified across 8 domains via a Groq-hosted model |
-| 👥 **Staff Recommendation Engine** | Five-step chain scores and recommends the best-fit staff member per complaint |
+| 🤖 **Semantic Routing** | Cohere `embed-english-v3.0` embeddings + MongoDB Atlas `$vectorSearch` match complaints to categories without an LLM call in the common case |
+| 🧭 **LLM Fallback Classification** | Ambiguous complaints get classified across 8 domains via a Groq-hosted model with structured JSON output |
+| 👥 **Staff Recommendation Engine** | Seven-step scoring chain: candidate pool → direct authority routing → sub-expertise filter → similar-complaint retrieval → resolver history → workload ranking → final score |
 | 📊 **Workload Awareness** | Admins can view staff workload by department before assigning |
 | 🗂 **Full Complaint Lifecycle** | Create → assign → status update → notes → resolution, tracked per complaint |
 | 🔐 **Role-Based Access** | Separate permissions for students, faculty, and admins via JWT + role middleware |
@@ -47,10 +66,10 @@ CampusCare is a role-based (student / faculty / admin) complaint portal where ro
 | Technology | Purpose |
 |---|---|
 | **Node.js / Express** | REST API framework |
-| **MongoDB** | Database |
+| **MongoDB Atlas** | Database + vector search for semantic routing |
 | **JWT** | Authentication |
 | **Role middleware** | `isAdmin` / `isFaculty` / `isStudent` route guards |
-| **Cohere** | Complaint embeddings for semantic routing |
+| **Cohere (`embed-english-v3.0`)** | Complaint embeddings |
 | **Groq** | LLM classification for low-confidence complaints |
 
 ### Frontend
@@ -94,13 +113,13 @@ Complaint submitted
 POST /complaints/create ──► auth + isStudent middleware
       │
       ▼
-aiRoutes: /ai/analyze ──► Cohere embedding ──► cosine similarity vs. known categories
+aiRoutes: /ai/analyze ──► Cohere embed-english-v3.0 ──► MongoDB Atlas $vectorSearch vs. known categories
       │
       ├── High similarity  ──► routed directly
       └── Low similarity   ──► Groq LLM classifies across 8 domains
       │
       ▼
-recommend-staff/:category ──► five-step recommendation chain
+recommend-staff/:category ──► seven-step recommendation engine
       │
       ▼
 Complaint assigned ──► faculty updates status / adds notes ──► stats updated
@@ -113,7 +132,7 @@ Complaint assigned ──► faculty updates status / adds notes ──► stats
 ### Prerequisites
 
 - Node.js ≥ 18
-- MongoDB (local or Atlas)
+- MongoDB (local or Atlas — vector search requires Atlas)
 - API keys for **Cohere** and **Groq**
 
 ### 1. Clone the repository
@@ -235,14 +254,15 @@ Frontend runs at `http://localhost:3000`, API at `http://localhost:5000`.
 - Route-level access control via `isAdmin` / `isFaculty` / `isStudent` middleware
 - Role separation enforced on every complaint and staff route — students, faculty, and admins each see only their scope
 - Admin-only routes for staff management, assignment, and system-wide stats
+- **Known trade-off:** JWT is stored in `localStorage` on the client, which is simple to implement but exposes the token to XSS if the frontend is ever compromised. A production hardening step would be moving to an HttpOnly cookie or adding a short-lived access token + refresh token pattern.
 
 ---
 
 ## 🗺 Roadmap
 
+- [ ] SLA-based escalation (priority-driven, day-based thresholds) — scoped, not yet implemented
 - [ ] Expand domain classification beyond 8 categories
 - [ ] Staff-side analytics dashboard
 - [ ] Admin controls for tuning similarity thresholds
 
 ---
-
